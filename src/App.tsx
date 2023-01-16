@@ -1,14 +1,16 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import './App.css';
-import createPixiApp from './pixiApp/app';
+import Game from './pixiApp/Game';
+import player from '../../core/src/entity/Player';
+import Gunner from './pixiApp/entity/Gunner';
 
 function App() {
-	const [count, setCount] = useState(0);
-
 	useEffect(() => {
-		const app = createPixiApp(60);
+		const game = new Game(60);
+		game.player = new (player(Gunner))();
+		game.init();
 		const root = document.getElementById('root')!;
-		root.appendChild(app.view as HTMLCanvasElement);
+		root.appendChild(game.app.view as HTMLCanvasElement);
 	}, []);
 
 	return (
