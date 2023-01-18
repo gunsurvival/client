@@ -53,10 +53,10 @@ export default class Game {
 
 			const camX = -this.player.displayObject.position.x + (this.viewport.screenWidth / 2);
 			const camY = -this.player.displayObject.position.y + (this.viewport.screenHeight / 2);
-			this.viewport.position.set(lerp(this.viewport.position.x, camX, 0.01), lerp(this.viewport.position.y, camY, 0.01));
+			this.viewport.position.set(lerp(this.viewport.position.x, camX, 0.05), lerp(this.viewport.position.y, camY, 0.05));
 
 			const playerScreenPos = this.viewport.toScreen(this.player.body.x, this.player.body.y);
-			this.player.body.setAngle(Math.atan2(
+			this.player.body.setAngle(Math.atan2( // Online
 				this.pointerPos.y - playerScreenPos.y,
 				this.pointerPos.x - playerScreenPos.x,
 			));
