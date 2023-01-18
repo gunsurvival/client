@@ -1,8 +1,8 @@
 import React, {useEffect} from 'react';
 import './App.css';
 import Game from './pixiApp/Game';
-import player from '../../core/src/entity/Player';
 import Gunner from './pixiApp/entity/Gunner';
+import player from '../../core/src/entity/Player';
 
 function App() {
 	useEffect(() => {

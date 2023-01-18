@@ -3,8 +3,7 @@ import GunnerCore from '../../../../core/src/entity/Gunner';
 import type World from '../../../../core/src/world/World';
 import type IEntity from './Entity';
 import {type TickData} from '../../../../core/src/types';
-
-const lerp = (a: number, b: number, c: number) => (a * (1 - c)) + (b * c);
+import {lerp} from '../../../../core/src/util/common';
 
 export default class Gunner extends GunnerCore implements IEntity {
 	displayObject = PIXI.Sprite.from('images/terrorist.png');
@@ -21,6 +20,5 @@ export default class Gunner extends GunnerCore implements IEntity {
 		this.displayObject.x = lerp(this.displayObject.x, this.body.x, alpha);
 		this.displayObject.y = lerp(this.displayObject.y, this.body.y, alpha);
 		this.displayObject.rotation = this.body.angle;
-		console.log(this.body.angle);
 	}
 }

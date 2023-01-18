@@ -4,30 +4,28 @@ import World from './world/World';
 import type IEntity from './entity/Entity';
 import type Entity from '../../../core/src/entity/Entity';
 import {type IPlayer} from '../../../core/src/entity/Player';
+import {lerp} from '../../../core/src/util/common';
 import Bush from './entity/Bush';
 import Rock from './entity/Rock';
 
-function lerp(start: number, end: number, amt: number) {
-	return ((1 - amt) * start) + (amt * end);
-}
-
 export default class Game {
 	deltaMs: number;
-	// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 	player: Entity & IEntity & IPlayer;
-
 	elapsedMs = 0;
 	accumulator = 0;
 	app = new PIXI.Application({width: 1366, height: 768, backgroundColor: '#133a2b'});
 	viewport = new Viewport({
-		screenWidth: window.innerWidth,
-		screenHeight: window.innerHeight,
-		worldWidth: 1000,
-		worldHeight: 1000,
+		screenWidth: this.app.screen.width,
+		screenHeight: this.app.screen.height,
 
 	});
 
 	world = new World(this.viewport);
+	pointerPos = {
+		x: 0,
+		y: 0,
+	};
+
 	constructor(public tps = 60) {
 		this.deltaMs = 1000 / this.tps;
 	}
@@ -39,11 +37,6 @@ export default class Game {
 		this.world.add(this.player);
 		this.world.add(bush);
 		this.world.add(rock);
-		this.viewport
-			.drag()
-			.pinch()
-			.wheel()
-			.decelerate();
 
 		this.app.ticker.add(() => {
 			this.accumulator += this.app.ticker.deltaMS;
@@ -57,6 +50,16 @@ export default class Game {
 				});
 				this.elapsedMs += this.deltaMs;
 			}
+
+			const camX = -this.player.displayObject.position.x + (this.viewport.screenWidth / 2);
+			const camY = -this.player.displayObject.position.y + (this.viewport.screenHeight / 2);
+			this.viewport.position.set(lerp(this.viewport.position.x, camX, 0.01), lerp(this.viewport.position.y, camY, 0.01));
+
+			const playerScreenPos = this.viewport.toScreen(this.player.body.x, this.player.body.y);
+			this.player.body.setAngle(Math.atan2(
+				this.pointerPos.y - playerScreenPos.y,
+				this.pointerPos.x - playerScreenPos.x,
+			));
 		});
 
 		this.app.stage.interactive = true;
@@ -64,13 +67,11 @@ export default class Game {
 
 		this.app.stage.addEventListener('pointermove', (event: Event) => {
 			const {global} = event as PIXI.FederatedMouseEvent;
-			this.player.pointer.x = global.x;
-			this.player.pointer.y = global.y;
-		// Alert(1);
+			this.pointerPos.x = global.x;
+			this.pointerPos.y = global.y;
 		});
 
 		document.addEventListener('keydown', key => {
-			console.log(key.code);
 			switch (key.code) {
 				case 'KeyW':
 					this.player.state.keyboard.w = true;
