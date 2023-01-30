@@ -7,8 +7,8 @@ import {lerp} from '../../../../core/src/util/common';
 
 export default class Gunner extends GunnerCore implements IEntity {
 	displayObject = PIXI.Sprite.from('images/terrorist.png');
-	constructor() {
-		super();
+
+	onCreate() {
 		this.displayObject.width = 80;
 		this.displayObject.height = 80;
 		this.displayObject.anchor.set(0.5);
