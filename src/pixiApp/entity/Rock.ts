@@ -7,7 +7,7 @@ import {type TickData} from '../../../../core/src/types';
 export default class Rock extends RockCore implements IEntity {
 	displayObject = PIXI.Sprite.from('images/Rock.png');
 
-	onCreate() {
+	onInit() {
 		this.displayObject.width = 200;
 		this.displayObject.height = 200;
 		this.displayObject.anchor.set(0.5);

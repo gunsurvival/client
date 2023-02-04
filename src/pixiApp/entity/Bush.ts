@@ -7,7 +7,8 @@ import {type TickData} from '../../../../core/src/types';
 export default class Bush extends BushCore implements IEntity {
 	displayObject = PIXI.Sprite.from('images/Bush.png');
 
-	onCreate() {
+	onInit() {
+		super.onInit();
 		this.displayObject.width = 200;
 		this.displayObject.height = 200;
 		this.displayObject.anchor.set(0.5);

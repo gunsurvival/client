@@ -8,7 +8,7 @@ import {lerp} from '../../../../core/src/util/common';
 export default class Gunner extends GunnerCore implements IEntity {
 	displayObject = PIXI.Sprite.from('images/terrorist.png');
 
-	onCreate() {
+	onInit() {
 		this.displayObject.width = 80;
 		this.displayObject.height = 80;
 		this.displayObject.anchor.set(0.5);
@@ -17,8 +17,14 @@ export default class Gunner extends GunnerCore implements IEntity {
 	update(world: World, tickData: TickData) {
 		super.update(world, tickData);
 		const alpha = 0.5;
-		this.displayObject.x = lerp(this.displayObject.x, this.body.x, alpha);
-		this.displayObject.y = lerp(this.displayObject.y, this.body.y, alpha);
+		this.displayObject.position.set(
+			lerp(this.displayObject.x, this.body.x, alpha),
+			lerp(this.displayObject.y, this.body.y, alpha),
+		);
 		this.displayObject.rotation = this.body.angle;
+	}
+
+	shoot() {
+
 	}
 }
