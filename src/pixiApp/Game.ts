@@ -13,7 +13,7 @@ export default class Game {
 	player: Player<EntityCore & IEntity>;
 	elapsedMs = 0;
 	accumulator = 0;
-	app = new PIXI.Application({width: 1366, height: 768, backgroundColor: '#133a2b'});
+	app = new PIXI.Application({width: 1366, height: 768, backgroundColor: '#133a2b', antialias: true, autoDensity: true, resolution: window.devicePixelRatio || 1});
 	viewport = new Viewport({
 		screenWidth: this.app.screen.width,
 		screenHeight: this.app.screen.height,
@@ -37,8 +37,8 @@ export default class Game {
 
 	init() {
 		this.app.stage.addChild(this.viewport);
-		for (let i = -5000; i < 5000; i += Math.random() * 100) {
-			for (let j = -5000; j < 5000; j += Math.random() * 100) {
+		for (let i = -5000; i < 5000; i += Math.random() * 1000) {
+			for (let j = -5000; j < 5000; j += Math.random() * 1000) {
 				const rock = new Rock({x: i, y: j} as SAT.Vector);
 				this.world.add(rock);
 			}
