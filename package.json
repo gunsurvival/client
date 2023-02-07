@@ -11,6 +11,7 @@
   "dependencies": {
     "@pixi/filter-fxaa": "^7.1.2",
     "@pixi/graphics-smooth": "^1.0.0",
+    "colyseus.js": "^0.14.13",
     "detect-collisions": "^6.6.11",
     "pixi-cull": "^2.2.0",
     "pixi-viewport": "^4.38.0",
