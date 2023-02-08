@@ -1,10 +1,9 @@
 import * as PIXI from 'pixi.js';
-import RockCore from '../../../../core/src/entity/Rock';
 import type World from '../../../../core/src/world/World';
-import type IEntity from './Entity';
 import {type TickData} from '../../../../core/src/types';
+import Entity from './Entity';
 
-export default class Rock extends RockCore implements IEntity {
+export default class Rock extends Entity {
 	displayObject = PIXI.Sprite.from('images/Rock.png');
 
 	onInit() {
@@ -14,8 +13,7 @@ export default class Rock extends RockCore implements IEntity {
 	}
 
 	update(world: World, tickData: TickData) {
-		super.update(world, tickData);
-		this.displayObject.x = this.body.x;
-		this.displayObject.y = this.body.y;
+		this.displayObject.x = this.coreEntity.pos.x;
+		this.displayObject.y = this.coreEntity.pos.y;
 	}
 }

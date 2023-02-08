@@ -1,14 +1,13 @@
 import {type Room, Client} from 'colyseus.js';
 import * as PIXI from 'pixi.js';
 import {Viewport} from 'pixi-viewport';
-import World from './world/World';
 import type IEntity from './entity/Entity';
+import * as Entities from './entity/index';
 import type EntityCore from '../../../core/src/entity/Entity';
 import {lerp, lerpAngle} from '../../../core/src/util/common';
 import Player from '../../../core/src/player/Player.World';
-import Bush from './entity/Bush';
-import Rock from './entity/Rock';
 import type CasualState from '../../../core/src/world/World';
+import Entity from '../../../core/src/entity/Entity';
 
 const endpoint = 'http://localhost:3000';
 
@@ -26,14 +25,14 @@ export default class Game {
 
 	});
 
-	world = new World(this.viewport);
+	world: CasualState;
 	pointerPos = {
 		x: 0,
 		y: 0,
 	};
 
 	constructor(public tps = 60) {
-		this.deltaMs = 1000 / this.tps;
+		this.targetDelta = 1000 / this.tps;
 	}
 
 	playAs(entity: EntityCore & IEntity) {
@@ -155,39 +154,27 @@ export default class Game {
 	}
 
 	async connect() {
+		// TODO: world them onAdd va onRemove, sau do hook vao state[any].onAdd hoac onRemove
+		// thought: Ngay tu ban dau minh da co world.entities.onAdd tu Schema cua colyseus, co the se ko can world.onAdd
+		// thought 2: lam method init(world: World) cho class nay, sau do dung world.entities.onAdd,
+		// minh co the truyen this.room.state vo nhu: this.init(this.room.state)
+		// thought 3: bo world.add, dung world.entites.set
 		this.room = await this.client.joinOrCreate<CasualState>('casual');
+		this.world = this.room.state;
 		this.room.state.entities.onAdd = (entity, sessionId: string) => {
-			this.world.add(entity);
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-call
+			this.world.add(new (Entities as Record<string, any>)[entity.name]().assign(entity));
 
 			// Detecting current user
 			if (sessionId === this.room.sessionId) {
-				this.currentPlayerEntity = graphics;
-				this.viewport.follow(this.currentPlayerEntity);
 			}
 
 			entity.onChange = changes => {
-				const color = (entity.radius < 10) ? 0xff0000 : 0xFFFF0B;
-
-				const graphics = this.entities[sessionId];
-
-				// Set x/y directly if interpolation is turned off
-				if (!this._interpolation) {
-					graphics.x = entity.x;
-					graphics.y = entity.y;
-				}
-
-				graphics.clear();
-				graphics.lineStyle(0);
-				graphics.beginFill(color, 0.5);
-				graphics.drawCircle(0, 0, entity.radius);
-				graphics.endFill();
 			};
 		};
 
-		this.room.state.entities.onRemove = (_, sessionId: string) => {
-			this.viewport.removeChild(this.entities[sessionId]);
-			this.entities[sessionId].destroy();
-			delete this.entities[sessionId];
+		this.room.state.entities.onRemove = (entity, sessionId: string) => {
+			this.viewport.removeChild(this.world.entities.get(entity.id)!.displayObject);
 		};
 	}
 }
