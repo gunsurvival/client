@@ -5,8 +5,8 @@ import type Entity from './entity/Entity';
 import * as Entities from './entity/index';
 import type EntityCore from '../../../core/src/entity/Entity';
 import {lerp, lerpAngle} from '../../../core/src/util/common';
-import type Player from '../../../core/src/player/Player.World';
-import type CasualState from '../../../core/src/world/World';
+import type Player from '@gunsurvival/core/src/player/World';
+import type CasualState from '@gunsurvival/core/src/world/Casual';
 import {type Vector} from 'detect-collisions';
 
 const endpoint = 'http://localhost:3000';
@@ -158,29 +158,17 @@ export default class Game {
 	async connect() {
 		this.room = await this.client.joinOrCreate<CasualState>('casual');
 		this.world = this.room.state;
-		this.room.state.entities.onAdd = (entity, sessionId: string) => {
+		this.room.state.entities.onAdd = (coreEntity, sessionId: string) => {
 			// eslint-disable-next-line @typescript-eslint/naming-convention
-			const Ent = (Entities as Record<string, unknown>)[entity.name] as (new (entC: EntityCore) => Entity & Entity); // Typedef: inherit class from Entity
-			const ent = new Ent(entity);
+			const Ent = (Entities as Record<string, unknown>)[coreEntity.name] as (new (entC: EntityCore) => Entity); // Typedef: inherit class from Entity
+			const ent = new Ent(coreEntity);
+			ent.onCreate(coreEntity);
 			this.viewport.addChild(ent.displayObject);
 
 			// Detecting current user
 			if (sessionId === this.room.sessionId) {
 				this.playAs(ent);
 			}
-
-			entity.onChange = changes => {
-				changes.forEach(change => {
-					switch (change.field) {
-						case 'scale':
-							ent.displayObject.scale.set(change.value);
-							break;
-						default:
-
-							break;
-					}
-				});
-			};
 		};
 
 		this.room.state.entities.onRemove = (entity, sessionId: string) => {
