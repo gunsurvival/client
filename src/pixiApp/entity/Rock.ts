@@ -1,5 +1,5 @@
 import * as PIXI from 'pixi.js';
-import type World from '../../../../core/src/world/World';
+import type World from '@gunsurvival/core/src/world/Casual';
 import {type TickData} from '../../../../core/src/types';
 import Entity from './Entity';
 

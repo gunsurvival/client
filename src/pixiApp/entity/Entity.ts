@@ -1,22 +1,23 @@
-import {type DisplayObject} from 'pixi.js';
-import type CoreEntity from '../../../../core/src/entity/Entity';
-import type World from '../../../../core/src/world/World';
-import {type TickData} from '../../../../core/src/types';
+
+import type {DisplayObject} from 'pixi.js';
+import type {ITickData} from '@gunsurvival/core/types';
+import type World from '@gunsurvival/core/world/World.js';
+import type EntityCore from '@gunsurvival/core/entity/Entity.js';
 
 export default abstract class Entity {
 	elapseMs = 0;
 	abstract displayObject: DisplayObject;
 
-	constructor(public coreEntity: CoreEntity) {
+	constructor(public entityCore: EntityCore) {
 
 	}
 
-	baseUpdate(world: World, tickData: TickData) {
+	beforeUpdate(world: World, tickData: ITickData) {
 		this.elapseMs += tickData.deltaMs;
 	}
 
-	finalUpdate(world: World, tickData: TickData) {}
+	afterUpdate(world: World, tickData: ITickData) {}
 
-	abstract onInit(): void;
-	abstract update(world: World, tickData: TickData): void;
+	abstract onCreate(coreEntity: EntityCore): void;
+	abstract update(world: World, tickData: ITickData): void;
 }

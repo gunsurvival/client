@@ -1,9 +1,9 @@
 import * as PIXI from 'pixi.js';
-import GunnerCore from '../../../../core/src/entity/Gunner';
-import type World from '../../../../core/src/world/World';
-import {type TickData} from '../../../../core/src/types';
-import {lerp} from '../../../../core/src/util/common';
-import Entity from './Entity';
+import type {ITickData} from '@gunsurvival/core/types';
+import {lerp} from '@gunsurvival/core/util';
+import type {World} from '@gunsurvival/core/world';
+import GunnerCore from '@gunsurvival/core/entity/Gunner.js';
+import Entity from './Entity.js';
 
 export default class Gunner extends Entity {
 	displayObject = PIXI.Sprite.from('images/terrorist.png');
@@ -14,11 +14,11 @@ export default class Gunner extends Entity {
 		this.displayObject.anchor.set(0.5);
 	}
 
-	update(world: World, tickData: TickData) {
+	update(world: World, tickData: ITickData) {
 		const alpha = 0.5;
 		this.displayObject.position.set(
-			lerp(this.displayObject.x, this.body.x, alpha),
-			lerp(this.displayObject.y, this.body.y, alpha),
+			lerp(this.displayObject.x, this.entityCore.rigid.x, alpha),
+			lerp(this.displayObject.y, this.entityCore.rigid.y, alpha),
 		);
 		this.displayObject.rotation = this.body.angle;
 	}

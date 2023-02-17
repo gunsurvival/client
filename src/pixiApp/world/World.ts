@@ -1,7 +1,7 @@
 import {type Viewport} from 'pixi-viewport';
 import type EntityCore from '../../../../core/src/entity/Entity';
 import type IEntity from '../entity/Entity';
-import WorldCore from '../../../../core/src/world/World';
+import WorldCore from '@gunsurvival/core/src/world/Casual';
 
 export default class World extends WorldCore {
 	constructor(public viewport: Viewport) {
