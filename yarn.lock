@@ -505,20 +505,10 @@
   resolved "https://registry.yarnpkg.com/@pixi/filter-fxaa/-/filter-fxaa-7.1.0.tgz#738f312b48a9e17a5e90b8d3b87b8c8f9394234a"
   integrity sha512-tkqXJFKuRAi7gw32jIK2L0HTKDIOpPI8VWH4VnnC5bZf/7d1/y5b7WUcayxWUnyt10U8dicQrzsH9oZ9ESSpVA==
 
-"@pixi/filter-fxaa@^7.1.2":
-  version "7.1.2"
-  resolved "https://registry.yarnpkg.com/@pixi/filter-fxaa/-/filter-fxaa-7.1.2.tgz#250d3c2cd4eb6ca2d1124307ca1608471d131f16"
-  integrity sha512-vW47OpemETweJW6OaAy+jI/RUWtOdEhrXH7bPTDIJyTEij62xgec95f9AWU/OfWzK5lOsoWXtlV//mvGUdi86Q==
-
 "@pixi/filter-noise@7.1.0":
   version "7.1.0"
   resolved "https://registry.yarnpkg.com/@pixi/filter-noise/-/filter-noise-7.1.0.tgz#d51126e047c891054462eeb3f0f129abc0e037bb"
   integrity sha512-i68BOZAxxSJ8/v2gWoKldKIQ6nwiCUlcK38Kh87b+3X4FXyBp98gW6ShzzpCpJ60BDVHDyEGGKYEReTVJbfMoQ==
-
-"@pixi/graphics-smooth@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@pixi/graphics-smooth/-/graphics-smooth-1.0.0.tgz#69c68915b1638673bc254e41cd881cfa3c41ed7c"
-  integrity sha512-iKeCo3sYYR5R9mf5+RcZBnLlrT/2Wr1Oi2O6EOs3mKB/IaoWDdEsxlmKyia3qnle9+B6XC4uzwvNJwJ4pgcw6w==
 
 "@pixi/graphics@7.1.0":
   version "7.1.0"
