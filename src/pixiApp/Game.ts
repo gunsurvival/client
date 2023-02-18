@@ -1,13 +1,13 @@
-import {type Room, Client} from 'colyseus.js';
+import {type Room, Client} from '../lib/colyseus.js';
 import * as PIXI from 'pixi.js';
 import {Viewport} from 'pixi-viewport';
-import type Entity from './entity/Entity';
-import * as Entities from './entity/index';
-import type EntityCore from '../../../core/src/entity/Entity';
-import {lerp, lerpAngle} from '../../../core/src/util/common';
-import type Player from '@gunsurvival/core/src/player/World';
-import type CasualState from '@gunsurvival/core/src/world/Casual';
-import {type Vector} from 'detect-collisions';
+import type Entity from './entity/Entity.js';
+import * as Entities from './entity/index.js';
+import type {Entity as EntityCore} from '@gunsurvival/core/entity';
+import {lerp, lerpAngle} from '@gunsurvival/core/util';
+import type {Casual as Player} from '@gunsurvival/core/player';
+import type {Casual as CasualState} from '@gunsurvival/core/world';
+import type {Vector} from 'detect-collisions';
 
 const endpoint = 'http://localhost:3000';
 

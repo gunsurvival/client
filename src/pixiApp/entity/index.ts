@@ -1,3 +1,3 @@
-export {default as Bush} from './Bush';
-export {default as Gunner} from './Gunner';
-export {default as Rock} from './Rock';
+export {default as Bush} from './Bush.js';
+export {default as Gunner} from './Gunner.js';
+export {default as Rock} from './Rock.js';

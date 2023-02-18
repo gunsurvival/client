@@ -1,7 +1,6 @@
 import * as PIXI from 'pixi.js';
 import type {ITickData} from '@gunsurvival/core/types';
-import type World from '@gunsurvival/core/world/World.js';
-import BushCore from '@gunsurvival/core/entity/Bush.js';
+import type {World} from '@gunsurvival/core/world';
 import Entity from './Entity.js';
 
 export default class Bush extends Entity {
@@ -14,7 +13,7 @@ export default class Bush extends Entity {
 	}
 
 	update(world: World, tickData: ITickData) {
-		this.displayObject.x = this.entityCore.x;
-		this.displayObject.y = this.entityCore.y;
+		this.displayObject.x = this.entityCore.body.pos.x;
+		this.displayObject.y = this.entityCore.body.pos.y;
 	}
 }

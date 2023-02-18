@@ -1,8 +1,8 @@
 
 import type {DisplayObject} from 'pixi.js';
 import type {ITickData} from '@gunsurvival/core/types';
-import type World from '@gunsurvival/core/world/World.js';
-import type EntityCore from '@gunsurvival/core/entity/Entity.js';
+import type {World} from '@gunsurvival/core/world';
+import type {Entity as EntityCore} from '@gunsurvival/core/entity';
 
 export default abstract class Entity {
 	elapseMs = 0;
