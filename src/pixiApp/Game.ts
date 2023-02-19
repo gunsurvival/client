@@ -1,49 +1,40 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+
+import type {Vector} from 'detect-collisions';
 import {type Room, Client} from '../lib/colyseus.js';
-import * as PIXI from 'pixi.js';
+import type * as PIXI from 'pixi.js';
 import {Viewport} from 'pixi-viewport';
+import {lerp, lerpAngle} from '@gunsurvival/core/util';
+import type {Entity as EntityCore} from '@gunsurvival/core/entity';
+import * as Player from '@gunsurvival/core/player';
+import type * as World from '@gunsurvival/core/world';
 import type Entity from './entity/Entity.js';
 import * as Entities from './entity/index.js';
-import type {Entity as EntityCore} from '@gunsurvival/core/entity';
-import {lerp, lerpAngle} from '@gunsurvival/core/util';
-import type {Casual as Player} from '@gunsurvival/core/player';
-import type {Casual as CasualState} from '@gunsurvival/core/world';
-import type {Vector} from 'detect-collisions';
 
 const endpoint = 'http://localhost:3000';
 
 export default class Game {
 	client = new Client(endpoint);
-	room: Room<CasualState>;
-	targetDelta: number;
+	room: Room<World.Casual>;
+	player = new Player.Casual<EntityCore>();
+
 	elapsedMs = 0;
 	accumulator = 0;
-	app = new PIXI.Application({width: 1366, height: 768, backgroundColor: '#133a2b', antialias: true, autoDensity: true, resolution: window.devicePixelRatio || 1});
-	viewport = new Viewport({
-		screenWidth: this.app.screen.width,
-		screenHeight: this.app.screen.height,
-
-	});
-
-	world: CasualState; // Reference to the room state
-	pointerPos = {
-		x: 0,
-		y: 0,
-	};
-
-	player: Entity;
+	targetDelta: number;
+	pointerPos = {x: 0, y: 0};
 	followPos: Vector = {x: 0, y: 0};
 
 	constructor(public tps = 60) {
 		this.targetDelta = 1000 / this.tps;
 	}
 
-	playAs(entity: Entity) {
-		this.player = entity;
-		this.cameraFollow(entity);
+	playAs(entity: EntityCore) {
+		this.player.playAs(entity);
+		this.cameraFollow(this.player.entity);
 	}
 
-	cameraFollow(entity: Entity) {
-		this.followPos = entity.displayObject.position;
+	cameraFollow(entity: EntityCore) {
+		this.followPos = entity.body.pos;
 	}
 
 	init() {
@@ -69,10 +60,10 @@ export default class Game {
 			const camY = -this.followPos.y + (this.viewport.screenHeight / 2);
 			this.viewport.position.set(lerp(this.viewport.position.x, camX, 0.05), lerp(this.viewport.position.y, camY, 0.05));
 
-			const playerX = this.player.displayObject.position.x;
-			const playerY = this.player.displayObject.position.y;
+			const playerX = this.player.entity.body.pos.x;
+			const playerY = this.player.entity.body.pos.y;
 			const playerScreenPos = this.viewport.toScreen(playerX, playerY);
-			this.player.displayObject.angle = lerpAngle(this.player.displayObject.angle, Math.atan2(
+			this.player.entity.body.angle = lerpAngle(this.player.entity.body.angle, Math.atan2(
 				this.pointerPos.y - playerScreenPos.y,
 				this.pointerPos.x - playerScreenPos.x,
 			), 0.3);
@@ -88,75 +79,147 @@ export default class Game {
 		});
 
 		document.addEventListener('keydown', key => {
-			switch (key.code) {
-				case 'KeyW':
-					this.player.state.keyboard.w = true;
-					break;
-				case 'KeyA':
-					this.player.state.keyboard.a = true;
-					break;
-				case 'KeyS':
-					this.player.state.keyboard.s = true;
-					break;
-				case 'KeyD':
-					this.player.state.keyboard.d = true;
-					break;
-				default:
-					break;
+			if (this.isOnline) {
+				switch (key.code) {
+					case 'KeyW':
+						this.room.send('keyDown', 'w');
+						break;
+					case 'KeyA':
+						this.room.send('keyDown', 'a');
+						break;
+					case 'KeyS':
+						this.room.send('keyDown', 's');
+						break;
+					case 'KeyD':
+						this.room.send('keyDown', 'd');
+						break;
+					default:
+						break;
+				}
+			} else {
+				switch (key.code) {
+					case 'KeyW':
+						this.player.state.keyboard.w = true;
+						break;
+					case 'KeyA':
+						this.player.state.keyboard.a = true;
+						break;
+					case 'KeyS':
+						this.player.state.keyboard.s = true;
+						break;
+					case 'KeyD':
+						this.player.state.keyboard.d = true;
+						break;
+					default:
+						break;
+				}
 			}
 		});
 
 		document.addEventListener('keyup', key => {
-			switch (key.code) {
-				case 'KeyW':
-					this.player.state.keyboard.w = false;
-					break;
-				case 'KeyA':
-					this.player.state.keyboard.a = false;
-					break;
-				case 'KeyS':
-					this.player.state.keyboard.s = false;
-					break;
-				case 'KeyD':
-					this.player.state.keyboard.d = false;
-					break;
-				default:
+			if (this.isOnline) {
+				switch (key.code) {
+					case 'KeyW':
+						this.room.send('keyUp', 'w');
+						break;
+					case 'KeyA':
+						this.room.send('keyUp', 'a');
+						break;
+					case 'KeyS':
+						this.room.send('keyUp', 's');
+						break;
+					case 'KeyD':
+						this.room.send('keyUp', 'd');
+						break;
+					default:
+						break;
+				}
+			} else {
+				switch (key.code) {
+					case 'KeyW':
+						this.player.state.keyboard.w = false;
+						break;
+					case 'KeyA':
+						this.player.state.keyboard.a = false;
+						break;
+					case 'KeyS':
+						this.player.state.keyboard.s = false;
+						break;
+					case 'KeyD':
+						this.player.state.keyboard.d = false;
+						break;
+					default:
+						break;
+				}
 			}
 		});
 
 		document.addEventListener('mousedown', mouse => {
-			switch (mouse.button) {
-				case 0:
-					this.player.state.mouse.left = true;
-					break;
-				case 1:
-					this.player.state.mouse.middle = true;
-					break;
-				case 2:
-					this.player.state.mouse.right = true;
-					break;
-				default:
+			if (this.isOnline) {
+				switch (mouse.button) {
+					case 0:
+						this.room.send('mouseDown', 'left');
+						break;
+					case 1:
+						this.room.send('mouseDown', 'middle');
+						break;
+					case 2:
+						this.room.send('mouseDown', 'right');
+						break;
+					default:
+						break;
+				}
+			} else {
+				switch (mouse.button) {
+					case 0:
+						this.player.state.mouse.left = true;
+						break;
+					case 1:
+						this.player.state.mouse.middle = true;
+						break;
+					case 2:
+						this.player.state.mouse.right = true;
+						break;
+					default:
+						break;
+				}
 			}
 		});
 
 		document.addEventListener('mouseup', mouse => {
-			switch (mouse.button) {
-				case 0:
-					this.player.state.mouse.left = false;
-					break;
-				case 1:
-					this.player.state.mouse.middle = false;
-					break;
-				case 2:
-					this.player.state.mouse.right = false;
-					break;
-				default:
+			if (this.isOnline) {
+				switch (mouse.button) {
+					case 0:
+						this.room.send('mouseUp', 'left');
+						break;
+					case 1:
+						this.room.send('mouseUp', 'middle');
+						break;
+					case 2:
+						this.room.send('mouseUp', 'right');
+						break;
+					default:
+						break;
+				}
+			} else {
+				switch (mouse.button) {
+					case 0:
+						this.player.state.mouse.left = false;
+						break;
+					case 1:
+						this.player.state.mouse.middle = false;
+						break;
+					case 2:
+						this.player.state.mouse.right = false;
+						break;
+					default:
+				}
 			}
 		});
 	}
 
 	async connect() {
-		this.room = await this.client.joinOrCreate<CasualState>('casual');
+		this.room = await this.client.joinOrCreate<World.Casual>('casual');
 		this.world = this.room.state;
 		this.room.state.entities.onAdd = (coreEntity, sessionId: string) => {
 			// eslint-disable-next-line @typescript-eslint/naming-convention
@@ -167,7 +230,7 @@ export default class Game {
 
 			// Detecting current user
 			if (sessionId === this.room.sessionId) {
-				this.playAs(ent);
+				this.playAs(coreEntity);
 			}
 		};
 

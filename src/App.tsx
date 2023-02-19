@@ -1,6 +1,6 @@
 import './App.css';
 import React, {useEffect} from 'react';
-import Game from './pixiApp/Game';
+import Game from './pixiApp/Game.js';
 
 function App() {
 	useEffect(() => {
