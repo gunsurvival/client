@@ -1,22 +1,21 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-
 import type {Vector} from 'detect-collisions';
-import {type Room, Client} from '../lib/colyseus.js';
 import type * as PIXI from 'pixi.js';
-import {Viewport} from 'pixi-viewport';
 import {lerp, lerpAngle} from '@gunsurvival/core/util';
-import type {Entity as EntityCore} from '@gunsurvival/core/entity';
+import * as WorldCore from '@gunsurvival/core/world';
+import type * as EntityCore from '@gunsurvival/core/entity';
 import * as Player from '@gunsurvival/core/player';
-import type * as World from '@gunsurvival/core/world';
-import type Entity from './entity/Entity.js';
-import * as Entities from './entity/index.js';
-
-const endpoint = 'http://localhost:3000';
+import type * as WorldServer from '@gunsurvival/server/world';
+import type * as RoomServer from '@gunsurvival/server/room';
+import {type Room, Client} from '../lib/colyseus.js';
+import * as Entity from './entity/index.js';
+import * as World from './world/index.js';
+import {ENDPOINT} from '../constant.js';
 
 export default class Game {
-	client = new Client(endpoint);
-	room: Room<World.Casual>;
-	player = new Player.Casual<EntityCore>();
+	client = new Client(ENDPOINT);
+	room: Room<WorldServer.Casual>;
+	world = new World.Casual();
+	player = new Player.Casual<EntityCore.default>();
 
 	elapsedMs = 0;
 	accumulator = 0;
@@ -28,20 +27,21 @@ export default class Game {
 		this.targetDelta = 1000 / this.tps;
 	}
 
-	playAs(entity: EntityCore) {
+	playAs(entity: EntityCore.default) {
 		this.player.playAs(entity);
 		this.cameraFollow(this.player.entity);
 	}
 
-	cameraFollow(entity: EntityCore) {
+	cameraFollow(entity: EntityCore.default) {
 		this.followPos = entity.body.pos;
 	}
 
 	init() {
-		this.app.stage.addChild(this.viewport);
+		const worldCore = new WorldCore.Casual();
+		this.world.useWorld(worldCore);
 
-		this.app.ticker.add(() => {
-			this.accumulator += this.app.ticker.deltaMS;
+		this.world.app.ticker.add(() => {
+			this.accumulator += this.world.app.ticker.deltaMS;
 			while (this.accumulator >= this.targetDelta) {
 				this.accumulator -= this.targetDelta;
 				const tickData = {
@@ -51,28 +51,33 @@ export default class Game {
 					delta: 1,
 				};
 
-				this.player.update(this.world, tickData);
+				if (this.player.entity) {
+					this.player.update(this.world.worldCore, tickData);
+				}
+
 				this.world.nextTick(tickData);
 				this.elapsedMs += this.targetDelta;
 			}
 
-			const camX = -this.followPos.x + (this.viewport.screenWidth / 2);
-			const camY = -this.followPos.y + (this.viewport.screenHeight / 2);
-			this.viewport.position.set(lerp(this.viewport.position.x, camX, 0.05), lerp(this.viewport.position.y, camY, 0.05));
+			if (this.player.entity) {
+				const camX = -this.followPos.x + (this.world.viewport.screenWidth / 2);
+				const camY = -this.followPos.y + (this.world.viewport.screenHeight / 2);
+				this.world.viewport.position.set(lerp(this.world.viewport.position.x, camX, 0.05), lerp(this.world.viewport.position.y, camY, 0.05));
 
-			const playerX = this.player.entity.body.pos.x;
-			const playerY = this.player.entity.body.pos.y;
-			const playerScreenPos = this.viewport.toScreen(playerX, playerY);
-			this.player.entity.body.angle = lerpAngle(this.player.entity.body.angle, Math.atan2(
-				this.pointerPos.y - playerScreenPos.y,
-				this.pointerPos.x - playerScreenPos.x,
-			), 0.3);
+				const playerX = this.player.entity.body.pos.x;
+				const playerY = this.player.entity.body.pos.y;
+				const playerScreenPos = this.world.viewport.toScreen(playerX, playerY);
+				this.player.entity.body.angle = lerpAngle(this.player.entity.body.angle, Math.atan2(
+					this.pointerPos.y - playerScreenPos.y,
+					this.pointerPos.x - playerScreenPos.x,
+				), 0.3);
+			}
 		});
 
-		this.app.stage.interactive = true;
-		this.app.stage.hitArea = this.app.screen;
+		this.world.app.stage.interactive = true;
+		this.world.app.stage.hitArea = this.world.app.screen;
 
-		this.app.stage.addEventListener('pointermove', (event: Event) => {
+		this.world.app.stage.addEventListener('pointermove', (event: Event) => {
 			const {global} = event as PIXI.FederatedMouseEvent;
 			this.pointerPos.x = global.x;
 			this.pointerPos.y = global.y;
@@ -219,24 +224,28 @@ export default class Game {
 	}
 
 	async connect() {
-		this.room = await this.client.joinOrCreate<World.Casual>('casual');
-		this.world = this.room.state;
-		this.room.state.entities.onAdd = (coreEntity, sessionId: string) => {
-			// eslint-disable-next-line @typescript-eslint/naming-convention
-			const Ent = (Entities as Record<string, unknown>)[coreEntity.name] as (new (entC: EntityCore) => Entity); // Typedef: inherit class from Entity
-			const ent = new Ent(coreEntity);
-			ent.onCreate(coreEntity);
-			this.viewport.addChild(ent.displayObject);
+		this.room = await this.client.joinOrCreate<WorldServer.Casual>('casual');
+
+		this.room.state.entities.onAdd = (entityServer, sessionId: string) => {
+			const Ent = (Entity as Record<string, unknown>)[entityServer.entityCore.constructor.name] as (new (entC: EntityCore.default) => Entity.default); // Typedef: inherit class from Entity
+			const ent = new Ent(entityServer.entityCore);
+			ent.onCreate(entityServer.entityCore);
+			this.world.viewport.addChild(ent.displayObject);
 
 			// Detecting current user
 			if (sessionId === this.room.sessionId) {
-				this.playAs(coreEntity);
+				this.playAs(ent.entityCore);
 			}
 		};
 
-		this.room.state.entities.onRemove = (entity, sessionId: string) => {
-			this.viewport.removeChild(this.world.entities.get(entity.id)!.displayObject);
+		this.room.state.entities.onRemove = (entityServer, sessionId: string) => {
+			this.world.viewport.removeChild(this.world.entities.get(entityServer.entityCore.id)!.displayObject);
+			this.world.worldCore.remove(entityServer.entityCore);
 		};
+
+		setInterval(() => {
+			console.log(this.room.state.entities);
+		}, 1000);
 	}
 
 	get isOnline() {

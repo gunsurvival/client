@@ -1,7 +1,11 @@
-import {type Viewport} from 'pixi-viewport';
-import type {Entity as EntityCore} from '@gunsurvival/core/entity';
-import type Entity from '../entity/Entity.js';
-import type WorldCore from '@gunsurvival/core/world';
+import type {Vector} from 'detect-collisions';
+import * as PIXI from 'pixi.js';
+import {Viewport} from 'pixi-viewport';
+import {lerp, lerpAngle} from '@gunsurvival/core/util';
+import type * as WorldCore from '@gunsurvival/core/world';
+import type * as EntityCore from '@gunsurvival/core/entity';
+import * as Entity from '../entity/index.js';
+import {type ITickData} from '@gunsurvival/core/types';
 
 export default class World {
 	app = new PIXI.Application({width: 1366, height: 768, backgroundColor: '#133a2b'});
@@ -10,51 +14,41 @@ export default class World {
 		screenHeight: this.app.screen.height,
 	});
 
-	world: WorldCore; // Reference to the room state if online or create new World if offline
+	entities = new Map<string, Entity.default>();
+	worldCore: WorldCore.default; // Reference to the room state if online or create new World if offline
 
-	constructor(public viewport: Viewport) {
+	constructor() {
 		this.app.stage.addChild(this.viewport);
-		this.app.ticker.add(() => {
-
-		});
 	}
 
-	nextTick() {
-		this.accumulator += this.app.ticker.deltaMS;
-		while (this.accumulator >= this.targetDelta) {
-			this.accumulator -= this.targetDelta;
-			const tickData = {
-				accumulator: this.accumulator,
-				elapsedMs: this.elapsedMs,
-				deltaMs: this.targetDelta,
-				delta: 1,
-			};
+	useWorld(world: WorldCore.default) {
+		this.worldCore = world;
+		this.worldCore.entities.onAdd = (entityCore: EntityCore.default) => {
+			const EntityClass = (Entity as Record<string, unknown>)[entityCore.constructor.name] as new (entC: EntityCore.default) => Entity.default;
+			const entityInstance = new EntityClass(entityCore);
+			this.entities.set(entityCore.id, entityInstance);
+			this.viewport.addChild(entityInstance.displayObject);
+		};
 
-			this.player.update(this.world, tickData);
-			this.world.nextTick(tickData);
-			this.elapsedMs += this.targetDelta;
-		}
+		this.worldCore.entities.onRemove = (entityCore: EntityCore.default) => {
+			const entity = this.entities.get(entityCore.id);
+			if (entity) {
+				this.viewport.removeChild(entity.displayObject);
+			}
 
-		const camX = -this.followPos.x + (this.viewport.screenWidth / 2);
-		const camY = -this.followPos.y + (this.viewport.screenHeight / 2);
-		this.viewport.position.set(lerp(this.viewport.position.x, camX, 0.05), lerp(this.viewport.position.y, camY, 0.05));
-
-		const playerX = this.player.entity.body.pos.x;
-		const playerY = this.player.entity.body.pos.y;
-		const playerScreenPos = this.viewport.toScreen(playerX, playerY);
-		this.player.entity.body.angle = lerpAngle(this.player.entity.body.angle, Math.atan2(
-			this.pointerPos.y - playerScreenPos.y,
-			this.pointerPos.x - playerScreenPos.x,
-		), 0.3);
+			this.entities.delete(entityCore.id);
+		};
 	}
 
-	add(entity: EntityCore & IEntity) {
-		super.add(entity);
-		this.viewport.addChild(entity.displayObject);
+	add(entityCore: EntityCore.default) {
+		this.worldCore.add(entityCore);
 	}
 
-	remove(entity: EntityCore & IEntity) {
-		super.remove(entity);
-		this.viewport.removeChild(entity.displayObject);
+	remove(entityCore: EntityCore.default) {
+		this.worldCore.remove(entityCore);
+	}
+
+	nextTick(tickData: ITickData) {
+		this.worldCore.nextTick(tickData);
 	}
 }
