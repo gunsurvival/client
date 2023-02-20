@@ -9,6 +9,7 @@
 			"extends": ["xo-typescript"],
 			"files": ["*.ts", "*.tsx"],
 			"rules": {
+				"@typescript-eslint/naming-convention": "off",
 				"no-empty-function": "off",
 				"@typescript-eslint/no-empty-function": "off"
 			}
