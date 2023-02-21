@@ -5,7 +5,7 @@ import * as Player from '@gunsurvival/core/player';
 
 function App() {
 	useEffect(() => {
-		const game = new Game(60);
+		const game = new Game(128);
 		game.connect().then(() => {
 			game.init();
 		}).catch(err => {
