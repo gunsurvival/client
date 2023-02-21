@@ -8,7 +8,13 @@ import * as Entity from '../entity/index.js';
 import {type ITickData} from '@gunsurvival/core/types';
 
 export default class World {
-	app = new PIXI.Application({width: 1366, height: 768, backgroundColor: '#133a2b'});
+	app = new PIXI.Application({
+		width: 1366,
+		height: 768,
+		backgroundColor: '#133a2b',
+		antialias: true,
+	});
+
 	viewport = new Viewport({
 		screenWidth: this.app.screen.width,
 		screenHeight: this.app.screen.height,
@@ -50,5 +56,8 @@ export default class World {
 
 	nextTick(tickData: ITickData) {
 		this.worldCore.nextTick(tickData);
+		this.entities.forEach((entity: Entity.default) => {
+			entity.update(this.worldCore, tickData);
+		});
 	}
 }
