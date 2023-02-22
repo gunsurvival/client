@@ -1,13 +1,9 @@
 import type {Vector} from 'detect-collisions';
 import type * as PIXI from 'pixi.js';
-import {lerp, lerpAngle} from '@gunsurvival/core/util';
-import * as WorldCore from '@gunsurvival/core/world';
-import * as EntityCore from '@gunsurvival/core/entity';
-import * as Player from '@gunsurvival/core/player';
+import {type DataChange} from '@colyseus/schema';
 import type * as WorldServer from '@gunsurvival/server/world';
-import type * as RoomServer from '@gunsurvival/server/room';
-import {type Room, Client, type DataChange} from '../lib/colyseus.js';
-import * as Entity from './entity/index.js';
+import {lerp, World as WorldCore, Entity as EntityCore, Player} from '@gunsurvival/core';
+import {type Room, Client} from '../lib/colyseus.js';
 import * as World from './world/index.js';
 import {ENDPOINT} from '../constant.js';
 
@@ -26,9 +22,9 @@ export default class Game {
 	elapseTick = 0;
 	tpsCountInterval: NodeJS.Timeout;
 
-	constructor(public tps = 60) {
+	constructor(public targetTps = 60) {
 		// Const magicNumber = (0.1 * 128 / tps); // Based on 128 tps, best run on 1-1000tps
-		this.targetDelta = 1000 / this.tps;
+		this.targetDelta = 1000 / targetTps;
 	}
 
 	playAs(entityCore: EntityCore.default) {
