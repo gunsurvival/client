@@ -1,11 +1,7 @@
-import type {Vector} from 'detect-collisions';
 import * as PIXI from 'pixi.js';
 import {Viewport} from 'pixi-viewport';
-import {lerp, lerpAngle} from '@gunsurvival/core/util';
-import type * as WorldCore from '@gunsurvival/core/world';
-import type * as EntityCore from '@gunsurvival/core/entity';
+import type {World as WorldCore, Entity as EntityCore, ITickData} from '@gunsurvival/core';
 import * as Entity from '../entity/index.js';
-import {type ITickData} from '@gunsurvival/core/types';
 
 export default class World {
 	app = new PIXI.Application({
@@ -29,21 +25,23 @@ export default class World {
 
 	useWorld(world: WorldCore.default) {
 		this.worldCore = world;
-		this.worldCore.entities.onAdd = (entityCore: EntityCore.default) => {
+		this.worldCore.event.on('+entities', (entityCore: EntityCore.default) => {
 			const EntityClass = (Entity as Record<string, unknown>)[entityCore.constructor.name] as new (entC: EntityCore.default) => Entity.default;
 			const entityInstance = new EntityClass(entityCore);
 			this.entities.set(entityCore.id, entityInstance);
 			this.viewport.addChild(entityInstance.displayObject);
-		};
+		});
 
-		this.worldCore.entities.onRemove = (entityCore: EntityCore.default) => {
+		this.worldCore.event.on('-entities', (entityCore: EntityCore.default) => {
 			const entity = this.entities.get(entityCore.id);
 			if (entity) {
 				this.viewport.removeChild(entity.displayObject);
 			}
 
 			this.entities.delete(entityCore.id);
-		};
+		});
+
+		// TODO: Them setValue(field, value) vao EntityCore de thay doi gia tri cua Entity va hook vao day de update
 	}
 
 	add(entityCore: EntityCore.default) {
