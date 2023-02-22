@@ -515,6 +515,11 @@
   resolved "https://registry.yarnpkg.com/@pixi/graphics/-/graphics-7.1.0.tgz#46e354eb37c1a33b09b61d674a7785373e0cc9ee"
   integrity sha512-snZdUhlG0MFolMeR7codSGdGO7sFsciBrtiCuIU49zILZ7/TbC82Tv2GGZuseYI3TTkBdYfoLXlvHrzAk/g8Dw==
 
+"@pixi/layers@^2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@pixi/layers/-/layers-2.0.1.tgz#1c1aa3c0a9942d381fb598e112bb389172db9a74"
+  integrity sha512-bw1fB0tbQHick9xMWeovuRIgvezHWpBAkEGMwTKd7zIy8Nygg/uupzGddNF3rb+Lk1bq3+H5vejoA8v/mV9AMw==
+
 "@pixi/math@7.1.0":
   version "7.1.0"
   resolved "https://registry.yarnpkg.com/@pixi/math/-/math-7.1.0.tgz#1899a84f4b986ac181c6f8c4b4892a2735b26dc7"
@@ -633,6 +638,11 @@
   version "7.0.11"
   resolved "https://registry.yarnpkg.com/@types/json-schema/-/json-schema-7.0.11.tgz#d421b6c527a3037f7c84433fd2c4229e016863d3"
   integrity sha512-wOuvG1SN4Us4rez+tylwwwCV1psiNVOkJeM3AUWUNWg/jDQY2+HE/444y5gc+jBmRqASOm2Oeh5c1axHobwRKQ==
+
+"@types/node@^18.14.0":
+  version "18.14.0"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.14.0.tgz#94c47b9217bbac49d4a67a967fdcdeed89ebb7d0"
+  integrity sha512-5EWrvLmglK+imbCJY0+INViFWUHg1AHel1sq4ZVSfdcNqGy9Edv3UB9IIzzg+xPaUcAgZYcfVs2fBcwDeZzU0A==
 
 "@types/offscreencanvas@^2019.6.4":
   version "2019.7.0"

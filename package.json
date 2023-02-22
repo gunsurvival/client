@@ -12,6 +12,7 @@
 	"author": "khoakomlem",
 	"license": "MIT",
 	"dependencies": {
+		"@pixi/layers": "^2.0.1",
 		"colyseus.js": "^0.14.13",
 		"detect-collisions": "^6.6.11",
 		"pixi-cull": "^2.2.0",
