@@ -1,3 +1,4 @@
+import Stats from 'stats.js';
 import type {Vector} from 'detect-collisions';
 import type * as PIXI from 'pixi.js';
 import {type DataChange} from '@colyseus/schema';
@@ -8,6 +9,7 @@ import * as World from './world/index.js';
 import {ENDPOINT} from '../constant.js';
 
 export default class Game {
+	stats = new Stats();
 	client = new Client(ENDPOINT);
 	room: Room<WorldServer.Casual>;
 	world = new World.Casual();
@@ -20,7 +22,7 @@ export default class Game {
 	followPos: Vector = {x: 0, y: 0};
 	tps = 0;
 	elapseTick = 0;
-	tpsCountInterval: NodeJS.Timeout;
+	tpsCountInterval: number;
 
 	constructor(public targetTps = 60) {
 		// Const magicNumber = (0.1 * 128 / tps); // Based on 128 tps, best run on 1-1000tps
@@ -44,12 +46,20 @@ export default class Game {
 	}
 
 	init() {
+		this.stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
+		document.body.appendChild(this.stats.dom);
 		const worldCore = new WorldCore.Casual();
 		this.world.useWorld(worldCore);
 		this.countTps();
 
 		this.world.app.ticker.add(() => {
-			this.accumulator += this.world.app.ticker.deltaMS;
+			const {deltaMS} = this.world.app.ticker;
+			if (deltaMS > 250) {
+				deltaMS = 250;
+			}
+
+			this.accumulator += deltaMS;
+			this.stats.begin();
 			while (this.accumulator >= this.targetDelta) {
 				this.elapseTick++;
 				this.accumulator -= this.targetDelta;
@@ -60,9 +70,9 @@ export default class Game {
 					delta: 1,
 				};
 
-				if (this.player.entity?.id === this.room.sessionId) {
-					this.player.update(this.world.worldCore, tickData);
-				}
+				// If (this.player.entity?.id === this.room.sessionId) {
+				// 	this.player.update(this.world.worldCore, tickData);
+				// }
 
 				this.world.nextTick(tickData);
 				this.elapsedMs += this.targetDelta;
@@ -82,6 +92,8 @@ export default class Game {
 					);
 				}
 			}
+
+			this.stats.end();
 		});
 
 		this.world.app.stage.interactive = true;
@@ -203,6 +215,8 @@ export default class Game {
 
 			if (sessionId === this.room.sessionId) {
 				entityCore.id = this.room.sessionId;
+			} else {
+				entityCore.id = entityServer.id;
 			}
 
 			this.world.add(entityCore);
@@ -211,7 +225,7 @@ export default class Game {
 				this.playAs(entityCore);
 			}
 
-			entity.onCreate(entityServer.entityCore);
+			entity.onAdd(entityServer.entityCore);
 			this.world.viewport.addChild(entity.displayObject);
 
 			// TODO: lam dep khuc on change nay
@@ -234,22 +248,23 @@ export default class Game {
 				});
 			};
 
+			// TODO: Chores this shit please
 			entityServer.pos.onChange = (changes: DataChange[]) => {
 				changes.forEach((change: DataChange) => {
-					if (sessionId === this.room.sessionId) {
-						switch (change.field) {
-							case 'x':
-								entityCore.body.pos.x = lerp(entityCore.body.pos.x, change.value as number, 0.01);
-								break;
-							case 'y':
-								entityCore.body.pos.y = lerp(entityCore.body.pos.y, change.value as number, 0.01);
-								break;
-							default:
-								break;
-						}
+					// If (sessionId === this.room.sessionId) {
+					// 	switch (change.field) {
+					// 		case 'x':
+					// 			entityCore.body.pos.x = lerp(entityCore.body.pos.x, change.value as number, 0.01);
+					// 			break;
+					// 		case 'y':
+					// 			entityCore.body.pos.y = lerp(entityCore.body.pos.y, change.value as number, 0.01);
+					// 			break;
+					// 		default:
+					// 			break;
+					// 	}
 
-						return;
-					}
+					// 	return;
+					// }
 
 					switch (change.field) {
 						case 'x':
@@ -282,16 +297,42 @@ export default class Game {
 					}
 				});
 			};
+
+			if (entityServer.vel) {
+				entityServer.vel.onChange = (changes: DataChange[]) => {
+					changes.forEach((change: DataChange) => {
+						if (sessionId === this.room.sessionId) {
+							return;
+						}
+
+						switch (change.field) {
+							case 'x':
+								entityCore.vel.x = change.value as number;
+								break;
+							case 'y':
+								entityCore.vel.y = change.value as number;
+								break;
+							default:
+								break;
+						}
+					});
+				};
+			}
 		};
 
 		this.room.state.entities.onRemove = (entityServer, sessionId: string) => {
-			this.world.viewport.removeChild(this.world.entities.get(entityServer.entityCore.id)!.displayObject);
-			this.world.worldCore.remove(entityServer.entityCore);
-		};
+			try {
+				const entity = this.world.entities.get(entityServer.id);
+				if (!entity) {
+					return;
+				}
 
-		this.room.onMessage('hello', message => {
-			console.log(message);
-		});
+				this.world.remove(entity.entityCore);
+			} catch (e) {
+				console.log(entityServer);
+				console.log(e);
+			}
+		};
 	}
 
 	get isOnline() {
