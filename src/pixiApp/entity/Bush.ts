@@ -6,7 +6,7 @@ import Entity from './Entity.js';
 export default class Bush extends Entity {
 	displayObject = PIXI.Sprite.from('images/Bush.png');
 
-	onCreate() {
+	onAdd() {
 		this.displayObject.width = 200;
 		this.displayObject.height = 200;
 		this.displayObject.anchor.set(0.5);

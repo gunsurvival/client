@@ -10,18 +10,18 @@ export default class Gunner extends Entity {
 		multisample: 8,
 	});
 
-	onCreate() {
+	onAdd() {
 		this.displayObject.width = 80;
 		this.displayObject.height = 80;
 		this.displayObject.anchor.set(0.5);
 	}
 
 	update(world: WorldCore.default, tickData: ITickData) {
-		const alpha = 0.08;
+		const alpha = 0.1;
 		this.displayObject.position.set(
 			lerp(this.displayObject.x, this.entityCore.body.x, alpha),
 			lerp(this.displayObject.y, this.entityCore.body.y, alpha),
 		);
-		this.displayObject.rotation = lerpAngle(this.displayObject.rotation, this.entityCore.body.angle, 0.3);
+		this.displayObject.rotation = lerpAngle(this.displayObject.rotation, this.entityCore.body.angle, 0.2);
 	}
 }
