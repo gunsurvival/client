@@ -5,8 +5,8 @@ import * as Entity from '../entity/index.js';
 
 export default class World {
 	app = new PIXI.Application({
-		width: 1366,
-		height: 768,
+		width: window.innerWidth,
+		height: window.innerHeight,
 		backgroundColor: '#133a2b',
 		antialias: true,
 	});
@@ -43,6 +43,8 @@ export default class World {
 
 		// TODO: Them setValue(field, value) vao EntityCore de thay doi gia tri cua Entity va hook vao day de update
 	}
+
+	/** *************************** Alias methods below (reference to world core methods) */
 
 	add(entityCore: EntityCore.default) {
 		this.worldCore.add(entityCore);
