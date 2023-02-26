@@ -27,18 +27,19 @@ export default class World {
 		this.worldCore = world;
 		this.worldCore.event.on('+entities', (entityCore: EntityCore.default) => {
 			const EntityClass = (Entity as Record<string, unknown>)[entityCore.constructor.name] as new (entC: EntityCore.default) => Entity.default;
-			const entityInstance = new EntityClass(entityCore);
-			this.entities.set(entityCore.id, entityInstance);
-			this.viewport.addChild(entityInstance.displayObject);
+			const entityClient = new EntityClass(entityCore);
+			this.entities.set(entityCore.id, entityClient);
+			this.viewport.addChild(entityClient.displayObject);
+			entityClient.onAdd(entityCore);
 		});
 
 		this.worldCore.event.on('-entities', (entityCore: EntityCore.default) => {
 			const entity = this.entities.get(entityCore.id);
 			if (entity) {
 				this.viewport.removeChild(entity.displayObject);
+				this.entities.delete(entityCore.id);
+				entity.onRemove(entityCore);
 			}
-
-			this.entities.delete(entityCore.id);
 		});
 
 		// TODO: Them setValue(field, value) vao EntityCore de thay doi gia tri cua Entity va hook vao day de update
