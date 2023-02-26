@@ -1,5 +1,5 @@
 import Stats from 'stats.js';
-import type {Vector} from 'detect-collisions';
+import type {Body, Vector} from 'detect-collisions';
 import type * as PIXI from 'pixi.js';
 import {type DataChange} from '@colyseus/schema';
 import type * as WorldServer from '@gunsurvival/server/world';
@@ -30,13 +30,20 @@ export default class Game {
 	}
 
 	playAs(entityCore: EntityCore.default) {
+		const entityClient = this.world.entities.get(entityCore.id);
+		if (entityClient) {
+			console.log(entityClient);
+			entityClient.isPlayer = true;
+		}
+
 		this.player.playAs(entityCore);
 		this.cameraFollow(this.player.entity);
-		let oldAngle = Math.round(this.player.entity.body.angle * 100) / 100;
+		let oldAngle = 0;
 		setInterval(() => {
-			if (oldAngle !== Math.round(this.player.entity.body.angle * 100) / 100) {
-				this.room.send('angle',	this.player.entity.body.angle);
-				oldAngle = Math.round(this.player.entity.body.angle * 100) / 100;
+			const angle = Math.round(entityCore.body.angle * 100) / 100;
+			if (oldAngle !== angle) {
+				this.room.send('angle',	entityCore.body.angle);
+				oldAngle = angle;
 			}
 		}, 1000 / 20);
 	}
@@ -54,9 +61,6 @@ export default class Game {
 
 		this.world.app.ticker.add(() => {
 			const {deltaMS} = this.world.app.ticker;
-			if (deltaMS > 250) {
-				deltaMS = 250;
-			}
 
 			this.accumulator += deltaMS;
 			this.stats.begin();
@@ -82,14 +86,16 @@ export default class Game {
 					const camY = -this.followPos.y + (this.world.viewport.screenHeight / 2);
 					this.world.viewport.position.set(lerp(this.world.viewport.position.x, camX, 0.03), lerp(this.world.viewport.position.y, camY, 0.03));
 
-					const entity = this.world.entities.get(this.player.entity.id)!;
-					const playerX = entity.displayObject.position.x;
-					const playerY = entity.displayObject.position.y;
-					const playerScreenPos = this.world.viewport.toScreen(playerX, playerY);
-					this.player.entity.body.angle = Math.atan2(
-						this.pointerPos.y - playerScreenPos.y,
-						this.pointerPos.x - playerScreenPos.x,
-					);
+					const entity = this.world.entities.get(this.player.entity.id);
+					if (entity) {
+						const playerX = entity.displayObject.position.x;
+						const playerY = entity.displayObject.position.y;
+						const playerScreenPos = this.world.viewport.toScreen(playerX, playerY);
+						this.player.entity.body.angle = Math.atan2(
+							this.pointerPos.y - playerScreenPos.y,
+							this.pointerPos.x - playerScreenPos.x,
+						);
+					}
 				}
 			}
 
@@ -206,117 +212,17 @@ export default class Game {
 			const EntityCoreClass = (EntityCore as Record<string, unknown>)[entityServer.name] as (new () => EntityCore.default);
 			const entityCore = new EntityCoreClass();
 
-			entityCore.body.scale = entityServer.scale;
-			entityCore.body.angle = entityServer.angle;
-			entityCore.body.pos.x = entityServer.pos.x;
-			entityCore.body.pos.y = entityServer.pos.y;
-			entityCore.body.offset.x = entityServer.offset.x;
-			entityCore.body.offset.y = entityServer.offset.y;
+			// !!! this.world.add call physics.addBody(entityCore.body) so we need to init entityCore.body first !!!
+			entityCore.init(entityServer);
+			this.world.add(entityCore);
 
-			if (sessionId === this.room.sessionId) {
-				entityCore.id = this.room.sessionId;
-			} else {
-				entityCore.id = entityServer.id;
+			const entityClient = this.world.entities.get(entityServer.id);
+			if (entityClient) {
+				entityClient.hookStateChange(entityServer);
 			}
 
-			this.world.add(entityCore);
-			const entity = this.world.entities.get(entityCore.id)!;
 			if (sessionId === this.room.sessionId) {
 				this.playAs(entityCore);
-			}
-
-			entity.onAdd(entityServer.entityCore);
-			this.world.viewport.addChild(entity.displayObject);
-
-			// TODO: lam dep khuc on change nay
-			entityServer.onChange = (changes: DataChange[]) => {
-				changes.forEach((change: DataChange) => {
-					if (sessionId === this.room.sessionId) {
-						return;
-					}
-
-					switch (change.field) {
-						case 'angle':
-							entityCore.body.angle = change.value as number;
-							break;
-						case 'scale':
-							entityCore.body.scale = change.value as number;
-							break;
-						default:
-							break;
-					}
-				});
-			};
-
-			// TODO: Chores this shit please
-			entityServer.pos.onChange = (changes: DataChange[]) => {
-				changes.forEach((change: DataChange) => {
-					// If (sessionId === this.room.sessionId) {
-					// 	switch (change.field) {
-					// 		case 'x':
-					// 			entityCore.body.pos.x = lerp(entityCore.body.pos.x, change.value as number, 0.01);
-					// 			break;
-					// 		case 'y':
-					// 			entityCore.body.pos.y = lerp(entityCore.body.pos.y, change.value as number, 0.01);
-					// 			break;
-					// 		default:
-					// 			break;
-					// 	}
-
-					// 	return;
-					// }
-
-					switch (change.field) {
-						case 'x':
-							entityCore.body.pos.x = change.value as number;
-							break;
-						case 'y':
-							entityCore.body.pos.y = change.value as number;
-							break;
-						default:
-							break;
-					}
-				});
-			};
-
-			entityServer.offset.onChange = (changes: DataChange[]) => {
-				changes.forEach((change: DataChange) => {
-					if (sessionId === this.room.sessionId) {
-						return;
-					}
-
-					switch (change.field) {
-						case 'x':
-							entityCore.body.offset.x = change.value as number;
-							break;
-						case 'y':
-							entityCore.body.offset.y = change.value as number;
-							break;
-						default:
-							break;
-					}
-				});
-			};
-
-			if (entityServer.vel) {
-				entityServer.vel.onChange = (changes: DataChange[]) => {
-					changes.forEach((change: DataChange) => {
-						if (sessionId === this.room.sessionId) {
-							return;
-						}
-
-						switch (change.field) {
-							case 'x':
-								entityCore.vel.x = change.value as number;
-								break;
-							case 'y':
-								entityCore.vel.y = change.value as number;
-								break;
-							default:
-								break;
-						}
-					});
-				};
 			}
 		};
 
@@ -343,7 +249,6 @@ export default class Game {
 		this.tpsCountInterval = setInterval(() => {
 			this.tps = this.elapseTick;
 			this.elapseTick = 0;
-			console.log(this.tps);
 		}, 1000);
 	}
 }
