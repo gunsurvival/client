@@ -1,6 +1,8 @@
+
 import Stats from 'stats.js';
 import type {Body, Vector} from 'detect-collisions';
-import type * as PIXI from 'pixi.js';
+import * as PIXI from 'pixi.js';
+import {type JoystickChangeEvent, Joystick} from 'pixi-virtual-joystick';
 import {type DataChange} from '@colyseus/schema';
 import type * as WorldServer from '@gunsurvival/server/world';
 import {lerp, World as WorldCore, Entity as EntityCore, Player} from '@gunsurvival/core';
@@ -14,6 +16,20 @@ export default class Game {
 	room: Room<WorldServer.Casual>;
 	world = new World.Casual();
 	player = new Player.Casual<EntityCore.default>();
+	joystick = new Joystick({
+		outer: PIXI.Sprite.from('images/joystick-outer.png'), // ("images/joystick.png")
+		inner: PIXI.Sprite.from('images/joystick-inner.png'), // ("images/joystick-handle.png")
+		outerScale: {x: 0.5, y: 0.5},
+		innerScale: {x: 0.8, y: 0.8},
+
+		onStart() {
+			console.log('start');
+		},
+
+		onEnd() {
+			console.log('end');
+		},
+	});
 
 	elapsedMs = 0;
 	accumulator = 0;
@@ -32,7 +48,6 @@ export default class Game {
 	playAs(entityCore: EntityCore.default) {
 		const entityClient = this.world.entities.get(entityCore.id);
 		if (entityClient) {
-			console.log(entityClient);
 			entityClient.isPlayer = true;
 		}
 
@@ -50,6 +65,42 @@ export default class Game {
 
 	cameraFollow(entityCore: EntityCore.default) {
 		this.followPos = entityCore.body.pos;
+	}
+
+	initJoystick() {
+		this.joystick.settings.onChange = (data: JoystickChangeEvent) => {
+			console.log(data.angle); // Angle from 0 to 360
+			console.log(data.direction); // 'left', 'top', 'bottom', 'right', 'top_left', 'top_right', 'bottom_left' or 'bottom_right'.
+			console.log(data.power); // Power from 0 to 1
+
+			switch (data.direction) {
+				case 'left':
+					this.player.state.keyboard.a = true;
+					this.room.send('keyDown', 'a');
+					break;
+				case 'top':
+					this.player.state.keyboard.w = true;
+					this.room.send('keyDown', 'w');
+					break;
+				case 'bottom':
+					this.player.state.keyboard.s = true;
+					this.room.send('keyDown', 's');
+					break;
+				case 'right':
+					this.player.state.keyboard.d = true;
+					this.room.send('keyDown', 'd');
+					break;
+				case 'top_left':
+					this.player.state.keyboard.w = true;
+					this.room.send('keyDown', 'w');
+					this.player.state.keyboard.a = true;
+					this.room.send('keyDown', 'a');
+					break;
+				default:
+					break;
+			}
+		});
+		this.world.app.stage.addChild(this.joystick);
 	}
 
 	init() {
@@ -213,12 +264,14 @@ export default class Game {
 			const entityCore = new EntityCoreClass();
 
 			// !!! this.world.add call physics.addBody(entityCore.body) so we need to init entityCore.body first !!!
-			entityCore.init(entityServer);
+			entityCore.init({...entityServer});
 			this.world.add(entityCore);
 
 			const entityClient = this.world.entities.get(entityServer.id);
 			if (entityClient) {
 				entityClient.hookStateChange(entityServer);
+			} else {
+				console.log(entityServer.id, entityCore);
 			}
 
 			if (sessionId === this.room.sessionId) {
@@ -250,5 +303,17 @@ export default class Game {
 			this.tps = this.elapseTick;
 			this.elapseTick = 0;
 		}, 1000);
+	}
+
+	moveDirection(direction: "top" | "left" | "right" | "bottom") {
+		switch (direction) {
+			case "top":
+				this.player.state.keyboard.w = true;
+				this.room.send('keyDown', 'a');
+				break;
+			case "left":
+				this.player.state.keyboard.a = true;
+				this.room.send('keyDown', 'a');
+		}
 	}
 }

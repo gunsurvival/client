@@ -23,6 +23,7 @@ export default class Bullet extends Entity {
 		this.displayObject.y = this.entityCore.body.pos.y;
 	}
 
+	// Call when entityServer is created
 	hookStateChange(entityServer: EntityServer.default): void {
 		super.hookStateChange(entityServer);
 

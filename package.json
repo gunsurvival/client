@@ -17,6 +17,7 @@
 		"detect-collisions": "^6.6.11",
 		"pixi-cull": "^2.2.0",
 		"pixi-viewport": "^4.38.0",
+		"pixi-virtual-joystick": "^0.4.1",
 		"pixi.js": "^7.1.0",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0",
