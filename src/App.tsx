@@ -17,6 +17,7 @@ function App() {
 
 	return (
 		<>
+			<div className='zone dynamic active w-1/2 h-full fixed bottom-0 left-0 z-10'></div>
 		</>
 	);
 }

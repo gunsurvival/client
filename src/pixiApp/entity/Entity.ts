@@ -45,7 +45,6 @@ export default abstract class Entity {
 		};
 
 		entityServer.pos.onChange = (changes: DataChange[]) => {
-			console.log(changes);
 			changes.forEach((change: DataChange) => {
 				// If (this.isPlayer) {
 				// 	switch (change.field) {

@@ -9,6 +9,7 @@ export default class World {
 		height: window.innerHeight,
 		backgroundColor: '#133a2b',
 		antialias: true,
+		resizeTo: window
 	});
 
 	viewport = new Viewport({

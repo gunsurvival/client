@@ -1,8 +1,7 @@
-
 import Stats from 'stats.js';
 import type {Body, Vector} from 'detect-collisions';
-import * as PIXI from 'pixi.js';
-import {type JoystickChangeEvent, Joystick} from 'pixi-virtual-joystick';
+import type * as PIXI from 'pixi.js';
+import nipplejs from 'nipplejs';
 import {type DataChange} from '@colyseus/schema';
 import type * as WorldServer from '@gunsurvival/server/world';
 import {lerp, World as WorldCore, Entity as EntityCore, Player} from '@gunsurvival/core';
@@ -16,20 +15,7 @@ export default class Game {
 	room: Room<WorldServer.Casual>;
 	world = new World.Casual();
 	player = new Player.Casual<EntityCore.default>();
-	joystick = new Joystick({
-		outer: PIXI.Sprite.from('images/joystick-outer.png'), // ("images/joystick.png")
-		inner: PIXI.Sprite.from('images/joystick-inner.png'), // ("images/joystick-handle.png")
-		outerScale: {x: 0.5, y: 0.5},
-		innerScale: {x: 0.8, y: 0.8},
-
-		onStart() {
-			console.log('start');
-		},
-
-		onEnd() {
-			console.log('end');
-		},
-	});
+	joystick;
 
 	elapsedMs = 0;
 	accumulator = 0;
@@ -68,46 +54,53 @@ export default class Game {
 	}
 
 	initJoystick() {
-		this.joystick.settings.onChange = (data: JoystickChangeEvent) => {
-			console.log(data.angle); // Angle from 0 to 360
-			console.log(data.direction); // 'left', 'top', 'bottom', 'right', 'top_left', 'top_right', 'bottom_left' or 'bottom_right'.
-			console.log(data.power); // Power from 0 to 1
+		this.joystick = nipplejs.create({
+			zone: document.querySelector('.dynamic'),
+			color: 'blue',
+			multitouch: false,
+		});
+		this.joystick.on('end', (evt, data) => {
+			this.moveDirection('stop');
+		}).on('move', (evt, data) => {
+			// Console.log(data)
+			if (!data.direction) {
+				return;
+			}
 
-			switch (data.direction) {
-				case 'left':
-					this.player.state.keyboard.a = true;
-					this.room.send('keyDown', 'a');
-					break;
-				case 'top':
-					this.player.state.keyboard.w = true;
-					this.room.send('keyDown', 'w');
-					break;
-				case 'bottom':
-					this.player.state.keyboard.s = true;
-					this.room.send('keyDown', 's');
-					break;
-				case 'right':
-					this.player.state.keyboard.d = true;
-					this.room.send('keyDown', 'd');
-					break;
-				case 'top_left':
-					this.player.state.keyboard.w = true;
-					this.room.send('keyDown', 'w');
-					this.player.state.keyboard.a = true;
-					this.room.send('keyDown', 'a');
-					break;
-				default:
-					break;
+			this.moveDirection('stop');
+			const directionX = 'left';
+			const directionY = 'top';
+
+			const nX = Math.abs(Math.cos(data.angle.radian));
+			const nY = Math.abs(Math.sin(data.angle.radian));
+			const diff = Math.abs(nX - nY);
+			if (diff < 0.5) {
+				this.moveDirection(data.direction.x);
+				this.moveDirection(data.direction.y);
+			} else {
+				this.moveDirection(nX > nY ? data.direction.x : data.direction.y);
 			}
 		});
-		this.world.app.stage.addChild(this.joystick);
+		// .on('dir:up plain:up dir:left plain:left dir:down plain:down dir:right plain:right', (evt, data) => {
+		// 	dump(evt.type);
+		// });
+
+		// this.joystick.settings.onChange = (data: JoystickChangeEvent) => {
+		// 	console.log(data.angle); // Angle from 0 to 360
+		// 	console.log(data.direction); // 'left', 'top', 'bottom', 'right', 'top_left', 'top_right', 'bottom_left' or 'bottom_right'.
+		// 	console.log(data.power); // Power from 0 to 1
+
+		// this.world.app.stage.addChild(this.joystick);
 	}
 
 	init() {
+		this.goFullScreen();
+		this.resize();
 		this.stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
 		document.body.appendChild(this.stats.dom);
 		const worldCore = new WorldCore.Casual();
 		this.world.useWorld(worldCore);
+		this.isMobile() && this.initJoystick();
 		this.countTps();
 
 		this.world.app.ticker.add(() => {
@@ -131,10 +124,11 @@ export default class Game {
 
 				this.world.nextTick(tickData);
 				this.elapsedMs += this.targetDelta;
-
+				window.world = this.world
 				if (this.player.entity) {
-					const camX = -this.followPos.x + (this.world.viewport.screenWidth / 2);
-					const camY = -this.followPos.y + (this.world.viewport.screenHeight / 2);
+					console.log(-this.followPos.x)
+					const camX = (-this.followPos.x * world.viewport.scale._x + (window.innerWidth  / 2))   
+					const camY = (-this.followPos.y * world.viewport.scale._y + (window.innerHeight  / 2))
 					this.world.viewport.position.set(lerp(this.world.viewport.position.x, camX, 0.03), lerp(this.world.viewport.position.y, camY, 0.03));
 
 					const entity = this.world.entities.get(this.player.entity.id);
@@ -161,6 +155,10 @@ export default class Game {
 			this.pointerPos.x = global.x;
 			this.pointerPos.y = global.y;
 		});
+
+		window.onresize = ev => {
+			this.resize();
+		};
 
 		document.addEventListener('keydown', key => {
 			if (this.isOnline) {
@@ -305,15 +303,57 @@ export default class Game {
 		}, 1000);
 	}
 
-	moveDirection(direction: "top" | "left" | "right" | "bottom") {
+	moveDirection(direction: 'up' | 'left' | 'right' | 'down' | 'stop', isKeydown = true) {
 		switch (direction) {
-			case "top":
-				this.player.state.keyboard.w = true;
-				this.room.send('keyDown', 'a');
+			case 'up':
+				this.player.state.keyboard.w = isKeydown;
+				this.room.send(isKeydown ? 'keyDown' : 'keyUp', 'w');
 				break;
-			case "left":
-				this.player.state.keyboard.a = true;
-				this.room.send('keyDown', 'a');
+			case 'left':
+				this.player.state.keyboard.a = isKeydown;
+				this.room.send(isKeydown ? 'keyDown' : 'keyUp', 'a');
+				break;
+			case 'down':
+				this.player.state.keyboard.s = isKeydown;
+				this.room.send(isKeydown ? 'keyDown' : 'keyUp', 's');
+				break;
+			case 'right':
+				this.player.state.keyboard.d = isKeydown;
+				this.room.send(isKeydown ? 'keyDown' : 'keyUp', 'd');
+				break;
+			case 'stop':
+				this.player.state.keyboard.w = false;
+				this.player.state.keyboard.a = false;
+				this.player.state.keyboard.s = false;
+				this.player.state.keyboard.d = false;
+				this.room.send('keyUp', 'w');
+				this.room.send('keyUp', 'a');
+				this.room.send('keyUp', 's');
+				this.room.send('keyUp', 'd');
+				break;
+			default:
+				break;
 		}
 	}
+
+	resize() {
+		const fitWidth = window.innerWidth / 1920;
+			const fitHeight = window.innerHeight / 948;
+			this.world.viewport.setZoom(Math.max(fitWidth, fitHeight), true);
+			this.world.app.resize(window.innerWidth, window.innerHeight)
+	}
+
+	isMobile() {
+		return  /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+	}
+
+ goFullScreen(){
+    const canvas = document.getElementsByTagName("canvas")[0];
+    if(canvas.requestFullScreen)
+        canvas.requestFullScreen();
+    else if(canvas.webkitRequestFullScreen)
+        canvas.webkitRequestFullScreen();
+    else if(canvas.mozRequestFullScreen)
+        canvas.mozRequestFullScreen();
+}
 }
