@@ -9,7 +9,11 @@ import * as World from './world/index.js';
 import {ENDPOINT} from '../constant.js';
 
 export default class Game {
-	stats = new Stats();
+	stats = {
+		fps: new Stats(),
+		ping: new Stats(),
+	};
+
 	client = new Client(ENDPOINT);
 	room: Room<WorldServer.Casual>;
 	world = new World.Casual();
@@ -30,6 +34,7 @@ export default class Game {
 	tps = 0;
 	elapseTick = 0;
 	tpsCountInterval: number;
+	ping: number;
 
 	constructor(public targetTps = 60) {
 		// Const magicNumber = (0.1 * 128 / tps); // Based on 128 tps, best run on 1-1000tps
@@ -114,8 +119,14 @@ export default class Game {
 
 	init() {
 		this.resize();
-		this.stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
-		document.body.appendChild(this.stats.dom);
+		this.intervalCheckPing();
+
+		// Show stats: fps, ping
+		this.stats.fps.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
+		document.body.appendChild(this.stats.fps.dom);
+		this.stats.ping.showPanel(1);
+		document.body.appendChild(this.stats.ping.dom);
+
 		const worldCore = new WorldCore.Casual();
 		this.world.useWorld(worldCore);
 		if (this.isMobile()) {
@@ -128,7 +139,7 @@ export default class Game {
 			const {deltaMS} = this.world.app.ticker;
 
 			this.accumulator += deltaMS;
-			this.stats.begin();
+			this.stats.fps.begin();
 			while (this.accumulator >= this.targetDelta) {
 				this.elapseTick++;
 				this.accumulator -= this.targetDelta;
@@ -164,7 +175,7 @@ export default class Game {
 				}
 			}
 
-			this.stats.end();
+			this.stats.ping.end();
 		});
 
 		this.world.app.stage.interactive = true;
@@ -378,5 +389,19 @@ export default class Game {
 
 	isMobile() {
 		return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+	}
+
+	intervalCheckPing() {
+		this.stats.ping.begin();
+		this.room.send('ping');
+		this.room.onMessage('pong', (lastClientTime: number) => {
+			this.stats.ping.end();
+			this.ping = Date.now() - lastClientTime;
+			setTimeout(() => {
+				this.room.send('ping');
+				this.stats.ping.begin();
+			}, 1000);
+			console.log(this.ping);
+		});
 	}
 }
