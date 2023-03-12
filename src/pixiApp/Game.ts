@@ -126,6 +126,7 @@ export default class Game {
 		document.body.appendChild(this.stats.fps.dom);
 		this.stats.ping.showPanel(1);
 		document.body.appendChild(this.stats.ping.dom);
+		this.stats.ping.dom.style.left = '100px';
 
 		const worldCore = new WorldCore.Casual();
 		this.world.useWorld(worldCore);
@@ -175,7 +176,7 @@ export default class Game {
 				}
 			}
 
-			this.stats.ping.end();
+			this.stats.fps.end();
 		});
 
 		this.world.app.stage.interactive = true;
@@ -394,14 +395,14 @@ export default class Game {
 	intervalCheckPing() {
 		this.stats.ping.begin();
 		this.room.send('ping');
-		this.room.onMessage('pong', (lastClientTime: number) => {
+
+		this.room.onMessage('pong', (serverTime: number) => {
 			this.stats.ping.end();
-			this.ping = Date.now() - lastClientTime;
+			this.ping = Date.now() - serverTime;
 			setTimeout(() => {
-				this.room.send('ping');
 				this.stats.ping.begin();
+				this.room.send('ping');
 			}, 1000);
-			console.log(this.ping);
 		});
 	}
 }
