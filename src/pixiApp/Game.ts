@@ -7,6 +7,8 @@ import {lerp, lerpAngle, World as WorldCore, Entity as EntityCore, Player} from 
 import {type Room, Client} from '../lib/colyseus.js';
 import * as World from './world/index.js';
 import {ENDPOINT} from '../constant.js';
+import {store} from '../app/store.js';
+import {choose} from '../slices/ItemBarSlice.js';
 
 export default class Game {
 	stats = {
@@ -69,6 +71,10 @@ export default class Game {
 		this.initJoystick();
 	}
 
+	initUIs() {
+
+	}
+
 	initJoystick() {
 		// Move joystick
 		this.mobile.moveJoystick = nipplejs.create({
@@ -85,8 +91,6 @@ export default class Game {
 			}
 
 			this.moveDirection('stop');
-			const directionX = 'left';
-			const directionY = 'top';
 
 			const nX = Math.abs(Math.cos(data.angle.radian));
 			const nY = Math.abs(Math.sin(data.angle.radian));
@@ -120,6 +124,8 @@ export default class Game {
 	init() {
 		this.resize();
 		this.intervalCheckPing();
+
+		this.initUIs();
 
 		// Show stats: fps, ping
 		this.stats.fps.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
@@ -192,6 +198,20 @@ export default class Game {
 			this.resize();
 		};
 
+		window.addEventListener('wheel', event => {
+			const current = store.getState().itemBarSlice;
+			let choosing = current.choosing + Math.sign(event.deltaY);
+			if (choosing < 0) {
+				choosing = current.amount - 1;
+			}
+
+			if (choosing >= current.amount) {
+				choosing = 0;
+			}
+
+			store.dispatch(choose(choosing));
+		});
+
 		document.addEventListener('keydown', key => {
 			if (this.isOnline) {
 				switch (key.code) {
@@ -211,7 +231,20 @@ export default class Game {
 						this.player.state.keyboard.d = true;
 						this.room.send('keyDown', 'd');
 						break;
+					case 'Digit1':
+						store.dispatch(choose(0));
+						break;
+					case 'Digit2':
+						store.dispatch(choose(1));
+						break;
+					case 'Digit3':
+						store.dispatch(choose(2));
+						break;
+					case 'Digit4':
+						store.dispatch(choose(3));
+						break;
 					default:
+						console.log(key.code);
 						break;
 				}
 			}
