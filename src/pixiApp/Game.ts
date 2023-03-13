@@ -7,6 +7,8 @@ import {lerp, lerpAngle, World as WorldCore, Entity as EntityCore, Player} from 
 import {type Room, Client} from '../lib/colyseus.js';
 import * as World from './world/index.js';
 import {ENDPOINT} from '../constant.js';
+import {store} from '../app/store.js';
+import {choose} from '../slices/ItemBarSlice.js';
 
 export default class Game {
 	stats = {
@@ -196,6 +198,20 @@ export default class Game {
 			this.resize();
 		};
 
+		window.addEventListener('wheel', event => {
+			const current = store.getState().itemBarSlice;
+			let choosing = current.choosing + Math.sign(event.deltaY);
+			if (choosing < 0) {
+				choosing = current.amount - 1;
+			}
+
+			if (choosing >= current.amount) {
+				choosing = 0;
+			}
+
+			store.dispatch(choose(choosing));
+		});
+
 		document.addEventListener('keydown', key => {
 			if (this.isOnline) {
 				switch (key.code) {
@@ -216,16 +232,16 @@ export default class Game {
 						this.room.send('keyDown', 'd');
 						break;
 					case 'Digit1':
-						// (this.UIs.get('itemBar')! as ItemBar).choose(0);
+						store.dispatch(choose(0));
 						break;
 					case 'Digit2':
-						// (this.UIs.get('itemBar')! as ItemBar).choose(1);
+						store.dispatch(choose(1));
 						break;
 					case 'Digit3':
-						// (this.UIs.get('itemBar')! as ItemBar).choose(2);
+						store.dispatch(choose(2));
 						break;
 					case 'Digit4':
-						// (this.UIs.get('itemBar')! as ItemBar).choose(3);
+						store.dispatch(choose(3));
 						break;
 					default:
 						console.log(key.code);

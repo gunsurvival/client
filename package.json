@@ -13,6 +13,7 @@
 	"license": "MIT",
 	"dependencies": {
 		"@pixi/layers": "^2.0.1",
+		"@reduxjs/toolkit": "^1.9.3",
 		"autoprefixer": "^10.4.13",
 		"colyseus.js": "^0.14.13",
 		"detect-collisions": "^6.6.11",
@@ -23,6 +24,7 @@
 		"postcss": "^8.4.21",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0",
+		"react-redux": "^8.0.5",
 		"stats.js": "^0.17.0",
 		"tailwindcss": "^3.2.7"
 	},

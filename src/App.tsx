@@ -1,8 +1,7 @@
 import './App.css';
 import React, {useEffect} from 'react';
 import Game from './pixiApp/Game.js';
-import * as Player from '@gunsurvival/core/player';
-import ItemSlot from './ui/ItemSlot.js';
+import ItemSlot from './ui/ItemBar.js';
 
 function App() {
 	useEffect(() => {
