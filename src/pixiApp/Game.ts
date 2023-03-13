@@ -69,6 +69,10 @@ export default class Game {
 		this.initJoystick();
 	}
 
+	initUIs() {
+
+	}
+
 	initJoystick() {
 		// Move joystick
 		this.mobile.moveJoystick = nipplejs.create({
@@ -85,8 +89,6 @@ export default class Game {
 			}
 
 			this.moveDirection('stop');
-			const directionX = 'left';
-			const directionY = 'top';
 
 			const nX = Math.abs(Math.cos(data.angle.radian));
 			const nY = Math.abs(Math.sin(data.angle.radian));
@@ -120,6 +122,8 @@ export default class Game {
 	init() {
 		this.resize();
 		this.intervalCheckPing();
+
+		this.initUIs();
 
 		// Show stats: fps, ping
 		this.stats.fps.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
@@ -211,7 +215,20 @@ export default class Game {
 						this.player.state.keyboard.d = true;
 						this.room.send('keyDown', 'd');
 						break;
+					case 'Digit1':
+						// (this.UIs.get('itemBar')! as ItemBar).choose(0);
+						break;
+					case 'Digit2':
+						// (this.UIs.get('itemBar')! as ItemBar).choose(1);
+						break;
+					case 'Digit3':
+						// (this.UIs.get('itemBar')! as ItemBar).choose(2);
+						break;
+					case 'Digit4':
+						// (this.UIs.get('itemBar')! as ItemBar).choose(3);
+						break;
 					default:
+						console.log(key.code);
 						break;
 				}
 			}
