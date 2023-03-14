@@ -2,6 +2,7 @@ import './App.css';
 import React, {useEffect} from 'react';
 import Game from './pixiApp/Game.js';
 import ItemSlot from './ui/ItemBar.js';
+import HealthBar from './ui/HealthBar.js';
 
 function App() {
 	useEffect(() => {
@@ -20,6 +21,7 @@ function App() {
 			<div id='move-zone' className='zone dynamic active w-1/2 h-full fixed bottom-0 left-0 z-10'></div>
 			<div id='aim-zone' className='zone dynamic active w-1/2 h-full fixed bottom-0 right-0 z-10'></div>
 			<ItemSlot/>
+			<HealthBar/>
 		</>
 	);
 }
