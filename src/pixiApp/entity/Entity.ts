@@ -1,4 +1,3 @@
-import {Vector} from 'sat';
 import type {DisplayObject} from 'pixi.js';
 import type {ITickData} from '@gunsurvival/core/types';
 import type * as WorldCore from '@gunsurvival/core/world';

@@ -1,5 +1,4 @@
 import Stats from 'stats.js';
-import type {Vector} from 'detect-collisions';
 import type * as PIXI from 'pixi.js';
 import nipplejs, {type JoystickManager} from 'nipplejs';
 import type * as WorldServer from '@gunsurvival/server/world';
@@ -9,6 +8,7 @@ import * as World from './world/index.js';
 import {ENDPOINT} from '../constant.js';
 import {store} from '../app/store.js';
 import {choose} from '../slices/ItemBarSlice.js';
+import {SATVector} from 'detect-collisions';
 
 export default class Game {
 	stats = {
@@ -31,8 +31,8 @@ export default class Game {
 	elapsedMs = 0;
 	accumulator = 0;
 	targetDelta: number;
-	pointerPos = {x: 0, y: 0};
-	followPos: Vector = {x: 0, y: 0};
+	pointerPos = new SATVector(0, 0);
+	followPos = new SATVector(0, 0);
 	tps = 0;
 	elapseTick = 0;
 	tpsCountInterval: number;
