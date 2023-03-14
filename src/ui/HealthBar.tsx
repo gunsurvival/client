@@ -2,12 +2,12 @@ import React from 'react';
 
 export default function HealthBar() {
 	return (
-		<div className='fixed justify-center z-50 bottom-10 left-10'>
-			<div className='flex'>
-				<div className='w-10 h-10 rounded-full bg-red-900'></div>
-				<div className='flex flex-wrap content-center'>
-					<div className='w-16 h-5 bg-green-900'></div>
-				</div>
+		<div className='flex -translate-x-2'>
+			<div className='w-14 h-14 rounded-full relative left-3 border-solid border-green-900 border-8'>
+				<img src='./images/heart.png' />
+			</div>
+			<div className='flex flex-wrap content-center'>
+				<div className='w-64 h-10 bg-green-900 rounded-lg'></div>
 			</div>
 		</div>
 	);
