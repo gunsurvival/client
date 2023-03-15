@@ -1,9 +1,11 @@
 import {configureStore} from '@reduxjs/toolkit';
 import itemBarSlice from '../slices/ItemBarSlice.js';
+import heathBarSlice from '../slices/HealthBarSlice.js';
 
 export const store = configureStore({
 	reducer: {
 		itemBarSlice,
+		heathBarSlice,
 	},
 });
 

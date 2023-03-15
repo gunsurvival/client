@@ -45,5 +45,17 @@ export default class Bullet extends Entity {
 				}
 			});
 		};
+
+		(entityServer as EntityServer.Bullet).stats.onChange = (changes: DataChange[]) => {
+			changes.forEach((change: DataChange) => {
+				switch (change.field) {
+					case 'radius':
+						this.entityCore.stats.radius = change.value as number;
+						break;
+					default:
+						break;
+				}
+			});
+		};
 	}
 }
