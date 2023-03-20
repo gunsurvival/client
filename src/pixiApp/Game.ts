@@ -244,7 +244,6 @@ export default class Game {
 						store.dispatch(choose(3));
 						break;
 					default:
-						console.log(key.code);
 						break;
 				}
 			}
