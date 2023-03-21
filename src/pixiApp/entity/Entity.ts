@@ -44,6 +44,14 @@ export default abstract class Entity {
 			});
 		};
 
+		// Stats
+		entityServer.stats.onChange = (changes: DataChange[]) => {
+			changes.forEach((change: DataChange) => {
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+				this.entityCore[change.field] = change.value;
+			});
+		};
+
 		// Position
 		entityServer.pos.onChange = (changes: DataChange[]) => {
 			changes.forEach((change: DataChange) => {
