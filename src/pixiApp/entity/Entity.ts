@@ -1,4 +1,3 @@
-import {Vector} from 'sat';
 import type {DisplayObject} from 'pixi.js';
 import type {ITickData} from '@gunsurvival/core/types';
 import type * as WorldCore from '@gunsurvival/core/world';
@@ -25,6 +24,7 @@ export default abstract class Entity {
 	onRemove(coreEntity: EntityCore.default) {}
 
 	hookStateChange(entityServer: EntityServer.default) {
+		// Scale, Angle
 		entityServer.onChange = (changes: DataChange[]) => {
 			changes.forEach((change: DataChange) => {
 				if (this.isPlayer) {
@@ -32,11 +32,11 @@ export default abstract class Entity {
 				}
 
 				switch (change.field) {
-					case 'angle':
-						this.entityCore.body.angle = change.value as number;
-						break;
 					case 'scale':
 						this.entityCore.body.scale = change.value as number;
+						break;
+					case 'angle':
+						this.entityCore.body.angle = change.value as number;
 						break;
 					default:
 						break;
@@ -44,6 +44,15 @@ export default abstract class Entity {
 			});
 		};
 
+		// Stats
+		entityServer.stats.onChange = (changes: DataChange[]) => {
+			changes.forEach((change: DataChange) => {
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+				this.entityCore[change.field] = change.value;
+			});
+		};
+
+		// Position
 		entityServer.pos.onChange = (changes: DataChange[]) => {
 			changes.forEach((change: DataChange) => {
 				// If (this.isPlayer) {
@@ -80,6 +89,7 @@ export default abstract class Entity {
 			});
 		};
 
+		// Offset
 		entityServer.offset.onChange = (changes: DataChange[]) => {
 			changes.forEach((change: DataChange) => {
 				switch (change.field) {
@@ -94,5 +104,18 @@ export default abstract class Entity {
 				}
 			});
 		};
+
+		//  Bullet boilerplate
+		// (entityServer as EntityServer.Bullet).stats.onChange = (changes: DataChange[]) => {
+		// 	changes.forEach((change: DataChange) => {
+		// 		switch (change.field) {
+		// 			case 'radius':
+		// 				this.entityCore.stats.radius = change.value as number;
+		// 				break;
+		// 			default:
+		// 				break;
+		// 		}
+		// 	});
+		// };
 	}
 }
