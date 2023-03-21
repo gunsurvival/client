@@ -14,7 +14,7 @@ export default class Gunner extends Entity {
 
 	displayObject = PIXI.Sprite.from('images/terrorist.png', {
 		mipmap: PIXI.MIPMAP_MODES.ON,
-		multisample: 8,
+		multisample: PIXI.MSAA_QUALITY.HIGH,
 	});
 
 	onAdd() {
@@ -40,7 +40,10 @@ export default class Gunner extends Entity {
 				switch (change.field) {
 					case 'health':
 						this.entityCore.stats.health = change.value as number;
-						store.dispatch(setHealth(change.value as number));
+						if (this.isPlayer) {
+							store.dispatch(setHealth(change.value as number));
+						}
+
 						break;
 					case 'radius':
 						this.entityCore.stats.radius = change.value as number;
