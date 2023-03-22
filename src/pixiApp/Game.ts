@@ -407,7 +407,6 @@ export default class Game {
 			return;
 		}
 
-		// Console.log(angle);
 		this.player.entity.body.angle = angle;
 		this.player.state.mouse.left = true;
 		this.room.send('mouseDown', 'left');
