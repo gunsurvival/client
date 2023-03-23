@@ -2,6 +2,7 @@ import * as PIXI from 'pixi.js';
 import {Viewport} from 'pixi-viewport';
 import type {World as WorldCore, Entity as EntityCore, ITickData} from '@gunsurvival/core';
 import * as Entity from '../entity/index.js';
+import * as PIXIFilter from 'pixi-filters';
 
 export default class World {
 	app = new PIXI.Application({
@@ -17,10 +18,41 @@ export default class World {
 		screenHeight: this.app.screen.height,
 	});
 
+	filters = {
+		lightMap: new PIXIFilter.SimpleLightmapFilter(PIXI.Texture.from('images/lightmap.png')),
+		zoomBlur: new PIXIFilter.ZoomBlurFilter({
+			strength: 0,
+			center: new PIXI.Point(this.app.screen.width / 2, this.app.screen.height / 2),
+			innerRadius: 80,
+		}),
+	};
+
 	entities = new Map<string, Entity.default>();
 	worldCore: WorldCore.default; // Reference to the room state if online or create new World if offline
 
 	constructor() {
+		// Const radius = this.app.screen.width / 3;
+		// const blurSize = 10;
+
+		// const circle = new PIXI.Graphics()
+		// 	.beginFill('0xFF0000')
+		// 	.drawCircle(radius + blurSize, radius + blurSize, radius)
+		// 	.endFill();
+		// circle.filters = [new PIXI.BlurFilter(blurSize)];
+
+		// const bounds = new PIXI.Rectangle(0, 0, (radius + blurSize) * 2, (radius + blurSize) * 2);
+		// const texture = this.app.renderer.generateTexture(circle, {
+		// 	scaleMode: PIXI.SCALE_MODES.NEAREST,
+		// 	resolution: 1,
+		// 	region: bounds,
+		// });
+		//     const focus = new PIXI.Sprite(texture);
+
+		// this.viewport.mask = focus;
+		// this.app.stage.addChild(focus);
+		this.viewport.sortableChildren = true;
+		this.filters.lightMap.enabled = false;
+		this.viewport.filters = [this.filters.lightMap, this.filters.zoomBlur];
 		this.app.stage.addChild(this.viewport);
 	}
 
@@ -40,6 +72,18 @@ export default class World {
 				this.viewport.removeChild(entity.displayObject);
 				this.entities.delete(entityCore.id);
 				entity.onRemove(entityCore);
+			}
+		});
+
+		this.worldCore.event.on('collision-enter', (entityCoreA: EntityCore.default, entityCoreB: EntityCore.default) => {
+			if (entityCoreA.constructor.name === 'Bush' && entityCoreB.constructor.name === 'Gunner') {
+				this.filters.lightMap.enabled = true;
+			}
+		});
+
+		this.worldCore.event.on('collision-exit', (entityCoreA: EntityCore.default, entityCoreB: EntityCore.default) => {
+			if (entityCoreA.constructor.name === 'Bush' && entityCoreB.constructor.name === 'Gunner') {
+				this.filters.lightMap.enabled = false;
 			}
 		});
 

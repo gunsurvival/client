@@ -59,6 +59,15 @@ export default class Game {
 				oldAngle = angle;
 			}
 		}, 1000 / 20);
+
+		this.player.event.on('shoot', () => {
+			console.log('changed');
+			this.world.filters.zoomBlur.strength = Math.random() * 0.4 + 0.1;
+		});
+
+		this.player.event.on('exit-shoot', () => {
+			this.world.filters.zoomBlur.strength = 0;
+		});
 	}
 
 	cameraFollow(entityCore: EntityCore.default) {
