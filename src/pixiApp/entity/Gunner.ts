@@ -8,6 +8,7 @@ import type * as EntityServer from '@gunsurvival/server/entity';
 import Entity from './Entity.js';
 import {store} from '../../app/store.js';
 import {setHealth} from '../../slices/HealthBarSlice.js';
+import getOrdering from '../ordering.js';
 
 export default class Gunner extends Entity {
 	declare entityCore: EntityCore.Gunner;
@@ -21,6 +22,7 @@ export default class Gunner extends Entity {
 		this.displayObject.width = 80;
 		this.displayObject.height = 80;
 		this.displayObject.anchor.set(0.5);
+		this.displayObject.zIndex = getOrdering('Gunner');
 	}
 
 	update(world: WorldCore.default, tickData: ITickData) {

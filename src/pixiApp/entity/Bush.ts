@@ -5,6 +5,7 @@ import type {ITickData} from '@gunsurvival/core/types';
 import type * as WorldCore from '@gunsurvival/core/world';
 import type * as EntityServer from '@gunsurvival/server/entity';
 import Entity from './Entity.js';
+import getOrdering from '../ordering.js';
 
 export default class Bush extends Entity {
 	declare entityCore: EntityCore.Bush;
@@ -14,6 +15,20 @@ export default class Bush extends Entity {
 		this.displayObject.width = 200;
 		this.displayObject.height = 200;
 		this.displayObject.anchor.set(0.5);
+		this.displayObject.zIndex = getOrdering('Bush');
+
+		this.entityCore.event.on('collision-enter', (other: EntityCore.default) => {
+			if (other.constructor.name === 'Gunner') {
+				this.displayObject.alpha = 0.4;
+				this.shake();
+			}
+		});
+
+		this.entityCore.event.on('collision-exit', (other: EntityCore.default) => {
+			if (other.constructor.name === 'Gunner') {
+				this.displayObject.alpha = 1;
+			}
+		});
 	}
 
 	update(world: WorldCore.default, tickData: ITickData) {
@@ -35,5 +50,15 @@ export default class Bush extends Entity {
 				}
 			});
 		};
+	}
+
+	shake() {
+		const shake = new PIXI.filters.ShockwaveFilter();
+		shake.waveSize = 0.1;
+		shake.waveSpeed = 0.1;
+		shake.waveCount = 1;
+		shake.padding = 0;
+		shake.center = [0.5, 0.5];
+		this.displayObject.filters = [shake];
 	}
 }

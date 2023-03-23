@@ -6,6 +6,7 @@ import type * as EntityServer from '@gunsurvival/server/entity';
 import Entity from './Entity.js';
 import {type DataChange} from '../../lib/colyseus.js';
 import {lerp, lerpAngle} from '@gunsurvival/core';
+import getOrdering from '../ordering.js';
 
 export default class Bullet extends Entity {
 	declare entityCore: EntityCore.Bullet;
@@ -18,6 +19,7 @@ export default class Bullet extends Entity {
 		this.displayObject.rotation = this.entityCore.body.angle;
 		this.displayObject.x = this.entityCore.body.pos.x;
 		this.displayObject.y = this.entityCore.body.pos.y;
+		this.displayObject.zIndex = getOrdering('Bullet');
 	}
 
 	update(world: WorldCore.default, tickData: ITickData) {
