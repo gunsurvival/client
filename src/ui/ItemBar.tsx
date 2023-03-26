@@ -12,7 +12,7 @@ function Slot({id}: {id: number}) {
 	return (
 		<div onClick={() => {
 			dispatch(choose(id));
-		}} className={`border-solid z-50 mr-3 rounded-xl ${choosing === id ? choosingStyle : notChoosingStyle}`}></div>
+		}} className={`cursor-pointer border-solid z-50 mr-3 rounded-xl ${choosing === id ? choosingStyle : notChoosingStyle}`}></div>
 	);
 }
 
