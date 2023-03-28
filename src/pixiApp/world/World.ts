@@ -23,7 +23,7 @@ export default class World {
 		zoomBlur: new PIXIFilter.ZoomBlurFilter({
 			strength: 0,
 			center: new PIXI.Point(this.app.screen.width / 2, this.app.screen.height / 2),
-			innerRadius: 80,
+			innerRadius: 200,
 		}),
 	};
 
@@ -74,20 +74,6 @@ export default class World {
 				entity.onRemove(entityCore);
 			}
 		});
-
-		this.worldCore.event.on('collision-enter', (entityCoreA: EntityCore.default, entityCoreB: EntityCore.default) => {
-			if (entityCoreA.constructor.name === 'Bush' && entityCoreB.constructor.name === 'Gunner') {
-				this.filters.lightMap.enabled = true;
-			}
-		});
-
-		this.worldCore.event.on('collision-exit', (entityCoreA: EntityCore.default, entityCoreB: EntityCore.default) => {
-			if (entityCoreA.constructor.name === 'Bush' && entityCoreB.constructor.name === 'Gunner') {
-				this.filters.lightMap.enabled = false;
-			}
-		});
-
-		// TODO: Them setValue(field, value) vao EntityCore de thay doi gia tri cua Entity va hook vao day de update
 	}
 
 	/** *************************** Alias methods below (reference to world core methods) */
