@@ -10,11 +10,11 @@ import getOrdering from '../ordering.js';
 
 export default class Bullet extends Entity {
 	declare entityCore: EntityCore.Bullet;
-	displayObject = PIXI.Sprite.from('images/Bullet.png');
+	displayObject = PIXI.Sprite.from('images/bullet2.png');
 
 	onAdd() {
-		this.displayObject.width = 20;
-		this.displayObject.height = 20;
+		this.displayObject.width = this.entityCore.stats.radius;
+		this.displayObject.height = this.entityCore.stats.radius;
 		this.displayObject.anchor.set(0.5);
 		this.displayObject.rotation = this.entityCore.body.angle;
 		this.displayObject.x = this.entityCore.body.pos.x;
