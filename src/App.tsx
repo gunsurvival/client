@@ -24,7 +24,6 @@ function App() {
 			<div className='w-screen absolute bottom-28'>
 				<div className='justify-center flex'>
 					<HealthBar/>
-
 				</div>
 			</div>
 		</div>

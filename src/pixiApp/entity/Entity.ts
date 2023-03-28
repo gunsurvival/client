@@ -7,13 +7,10 @@ import type * as EntityServer from '@gunsurvival/server/entity';
 import {type DataChange} from '../../lib/colyseus.js';
 
 export default abstract class Entity {
-	isPlayer = false; // If this entity is player, it will be controlled by player
+	isPlayer = false; // If this entity is playing by the player
 	abstract displayObject: DisplayObject;
 
-	// If redefine this constructor, you must redefine the constructor of EntityClass Game.connect()
-	constructor(public entityCore: EntityCore.default) {
-
-	}
+	constructor(public entityCore: EntityCore.default) {}
 
 	useEntity(entityCore: EntityCore.default) {
 		this.entityCore = entityCore;
@@ -104,18 +101,5 @@ export default abstract class Entity {
 				}
 			});
 		};
-
-		//  Bullet boilerplate
-		// (entityServer as EntityServer.Bullet).stats.onChange = (changes: DataChange[]) => {
-		// 	changes.forEach((change: DataChange) => {
-		// 		switch (change.field) {
-		// 			case 'radius':
-		// 				this.entityCore.stats.radius = change.value as number;
-		// 				break;
-		// 			default:
-		// 				break;
-		// 		}
-		// 	});
-		// };
 	}
 }

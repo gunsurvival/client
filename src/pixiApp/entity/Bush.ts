@@ -20,7 +20,6 @@ export default class Bush extends Entity {
 		this.entityCore.event.on('collision-enter', (other: EntityCore.default) => {
 			if (other.constructor.name === 'Gunner') {
 				this.displayObject.alpha = 0.4;
-				this.shake();
 			}
 		});
 
