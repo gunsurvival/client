@@ -21,6 +21,12 @@ export default class Rock extends Entity {
 	update(world: WorldCore.default, tickData: ITickData) {
 		this.displayObject.x = this.entityCore.body.pos.x;
 		this.displayObject.y = this.entityCore.body.pos.y;
+
+		const scale = this.entityCore.stats.health / 100;
+		this.displayObject.scale = {
+			x: scale,
+			y: scale,
+		};
 	}
 
 	hookStateChange(entityServer: EntityServer.default): void {
