@@ -1,17 +1,20 @@
-import {Inventory as InventoryCore} from '@gunsurvival/core';
+import {type Inventory as InventoryCore} from '@gunsurvival/core';
+import {store} from '../app/store.js';
+import {choose} from '../slices/ItemBarSlice.js';
+import type Item from './item/Item.js';
 
 export default class Inventory {
 	constructor(public inventoryCore: InventoryCore) {
-		inventoryCore.on('add', (item) => {
+		inventoryCore.event.on('add', (item: Item) => {
 			console.log('add', item);
-		}
+		});
 
-		inventoryCore.on('remove', (item) => {
+		inventoryCore.event.on('remove', item => {
 			console.log('remove', item);
-		}
+		});
 
-		inventoryCore.on('select', (item) => {
-			console.log('select', item);
-		}
+		inventoryCore.event.on('choose', item => {
+			store.dispatch(choose(inventoryCore.items.indexOf(item)));
+		});
 	}
 }

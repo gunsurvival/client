@@ -3,6 +3,7 @@ import {createSlice} from '@reduxjs/toolkit';
 export type IItemBarState = {
 	choosing: number;
 	amount: number;
+	items: [];
 };
 
 export const itemBarSlice = createSlice({
@@ -10,11 +11,15 @@ export const itemBarSlice = createSlice({
 	initialState: {
 		choosing: 0,
 		amount: 4,
+		items: new Array(4).fill(undefined),
 	},
 	reducers: {
 		choose(state: IItemBarState, action: {payload: number}) {
 			state.choosing = action.payload;
 		},
+		remove(state: IItemBarState, action: {payload: number}) {
+			state.
+		}
 	},
 });
 
