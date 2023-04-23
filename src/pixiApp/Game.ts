@@ -24,7 +24,7 @@ export default class Game {
 	client = new Client(ENDPOINT);
 	room: Room<WorldServer.Casual>;
 	world = new World.Casual();
-	player = new Player.Casual<EntityCore.default>(true);
+	player = new Player.Casual(true);
 	camera = new Camera(this.world);
 
 	mobile: {
@@ -269,6 +269,11 @@ export default class Game {
 		this.player.event.on('collision-exit', () => {
 			this.world.filters.lightMap.enabled = false;
 		});
+
+		// Inventory
+		this.player.inventory.event.on('choose', indexes => {
+			store.dispatch(choose(indexes));
+		});
 	}
 
 	setupGlobalEvent() {
@@ -292,16 +297,16 @@ export default class Game {
 						this.room.send('keyDown', 'd');
 						break;
 					case 'Digit1':
-						store.dispatch(choose(0));
+						store.dispatch(choose([0]));
 						break;
 					case 'Digit2':
-						store.dispatch(choose(1));
+						store.dispatch(choose([1]));
 						break;
 					case 'Digit3':
-						store.dispatch(choose(2));
+						store.dispatch(choose([2]));
 						break;
 					case 'Digit4':
-						store.dispatch(choose(3));
+						store.dispatch(choose([3]));
 						break;
 					default:
 						break;
@@ -368,16 +373,18 @@ export default class Game {
 
 		window.addEventListener('wheel', event => {
 			const current = store.getState().itemBarSlice;
-			let choosing = current.choosing + Math.sign(event.deltaY);
-			if (choosing < 0) {
-				choosing = current.amount - 1;
-			}
+			if (current.choosing.length === 1) { // Check if only one item is choosing
+				let choosing = current.choosing[0] + Math.sign(event.deltaY);
+				if (choosing < 0) {
+					choosing = current.items.length - 1;
+				}
 
-			if (choosing >= current.amount) {
-				choosing = 0;
-			}
+				if (choosing >= current.items.length) {
+					choosing = 0;
+				}
 
-			store.dispatch(choose(choosing));
+				store.dispatch(choose([choosing]));
+			}
 		});
 	}
 

@@ -1,25 +1,29 @@
+import {type Item, type Inventory} from '@gunsurvival/core';
 import {createSlice} from '@reduxjs/toolkit';
 
-export type IItemBarState = {
-	choosing: number;
+export type IItem = {
+	id: string;
 	amount: number;
-	items: [];
+};
+
+export type IItemBarState = {
+	choosing: number[];
+	items: IItem[];
 };
 
 export const itemBarSlice = createSlice({
 	name: 'itemBarSlice',
 	initialState: {
-		choosing: 0,
-		amount: 4,
-		items: new Array(4).fill(undefined),
+		choosing: [0],
+		items: new Array<IItem>(4).fill({id: 'ak47', amount: 1}),
 	},
 	reducers: {
-		choose(state: IItemBarState, action: {payload: number}) {
+		choose(state: IItemBarState, action: {payload: number[]}) {
 			state.choosing = action.payload;
 		},
-		remove(state: IItemBarState, action: {payload: number}) {
-			state.
-		}
+		updateItems(state: IItemBarState, action: {payload: IItem[]}) {
+			state.items = action.payload;
+		},
 	},
 });
 

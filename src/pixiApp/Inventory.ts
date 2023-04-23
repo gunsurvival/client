@@ -5,16 +5,8 @@ import type Item from './item/Item.js';
 
 export default class Inventory {
 	constructor(public inventoryCore: InventoryCore) {
-		inventoryCore.event.on('add', (item: Item) => {
-			console.log('add', item);
-		});
-
-		inventoryCore.event.on('remove', item => {
-			console.log('remove', item);
-		});
-
-		inventoryCore.event.on('choose', item => {
-			store.dispatch(choose(inventoryCore.items.indexOf(item)));
+		inventoryCore.event.on('choose', indexes => {
+			store.dispatch(choose(indexes));
 		});
 	}
 }
