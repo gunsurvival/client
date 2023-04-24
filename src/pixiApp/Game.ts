@@ -121,9 +121,7 @@ export default class Game {
 		this.setupPlayerEvent();
 		this.setupGlobalEvent();
 		this.setupPIXIPointer();
-		if (this.isMobile) {
-			this.mobileSupport();
-		}
+		this.mobileSupport();
 
 		this.world.useWorld(new WorldCore.Casual());
 		this.world.app.ticker.add(this.nextTick.bind(this));
@@ -138,6 +136,7 @@ export default class Game {
 			const entityCore = new EntityCoreClass();
 
 			// !!! this.world.add call physics.addBody(entityCore.body) so we need to init entityCore.body first !!!
+			// ! This is a bug of physics engine maybe because all entities will spawn at the same position (0, 0) !
 			entityCore.init({...entityServer});
 			this.world.add(entityCore);
 
@@ -221,6 +220,10 @@ export default class Game {
 	}
 
 	mobileSupport() {
+		if (!this.isMobile) {
+			return;
+		}
+
 		document.getElementById('move-zone')!.style.display = 'block';
 		document.getElementById('aim-zone')!.style.display = 'block';
 		this.setupJoystick();
