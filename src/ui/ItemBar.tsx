@@ -1,8 +1,8 @@
 import React from 'react';
 import {useDispatch, useSelector} from 'react-redux';
+import {to} from '@gunsurvival/core/util';
 import {type RootState} from '../app/store.js';
 import {type IItem, choose} from '../slices/ItemBarSlice.js';
-import type Game from '../pixiApp/Game.js';
 
 function Slot({index, item}: {index: number; item: IItem}) {
 	const dispatch = useDispatch();
@@ -11,8 +11,8 @@ function Slot({index, item}: {index: number; item: IItem}) {
 	const notChoosingStyle = 'bg-green-800 w-14 h-14';
 
 	const clickHandler = async () => {
+		await to(game.player.inventory.choose(index));
 		dispatch(choose([index]));
-		await game.player.inventory.choose(index);
 	};
 
 	return (
