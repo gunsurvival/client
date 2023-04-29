@@ -22,7 +22,7 @@ export default class Rock extends Entity {
 		this.displayObject.x = this.entityCore.body.pos.x;
 		this.displayObject.y = this.entityCore.body.pos.y;
 
-		const scale = this.entityCore.stats.health / 100;
+		const scale = this.entityCore._stats.health / 100;
 		this.displayObject.scale = {
 			x: scale,
 			y: scale,
@@ -36,7 +36,7 @@ export default class Rock extends Entity {
 			changes.forEach((change: DataChange) => {
 				switch (change.field) {
 					case 'radius':
-						this.entityCore.stats.radius = change.value as number;
+						this.entityCore._stats.radius = change.value as number;
 						break;
 					default:
 						break;

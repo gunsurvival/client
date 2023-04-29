@@ -10,22 +10,16 @@ import {Camera} from './utils/Camera.js';
 import * as World from './world/index.js';
 import {ENDPOINT} from '../constant.js';
 import {store} from '../app/store.js';
-import {choose} from '../slices/ItemBarSlice.js';
+import * as ItemBarAction from '../slices/ItemBarSlice.js';
 
 export default class Game {
-	tps = 0;
+	room: Room<WorldServer.Casual>;
 	elapsedMs = 0;
-	elapseTick = 0;
-	accumulator = 0;
-	ping: number;
-	targetDelta: number;
-	tpsCountInterval: number;
 	pointerPos = new SATVector(0, 0);
 	client = new Client(ENDPOINT);
-	room: Room<WorldServer.Casual>;
 	world = new World.Casual();
-	player = new Player.Casual(true);
 	camera = new Camera(this.world);
+	player = new Player.Casual(true);
 
 	mobile: {
 		moveJoystick?: JoystickManager;
@@ -40,9 +34,19 @@ export default class Game {
 		ping: new Stats(),
 	};
 
+	private readonly internal = {
+		tps: 0,
+		targetDelta: 0,
+		elapsedMs: 0,
+		elapseTick: 0,
+		accumulator: 0,
+		ping: 0,
+		tpsCountInterval: 0,
+	};
+
 	constructor(public targetTps = 60) {
 		// Const magicNumber = (0.1 * 128 / tps); // Based on 128 tps, best run on 1-1000tps
-		this.targetDelta = 1000 / targetTps;
+		this.internal.targetDelta = 1000 / targetTps;
 	}
 
 	get isOnline() {
@@ -55,16 +59,17 @@ export default class Game {
 
 	nextTick() {
 		const {deltaMS} = this.world.app.ticker;
+		const {internal} = this;
 
-		this.accumulator += deltaMS;
+		internal.accumulator += deltaMS;
 		this.stats.fps.begin();
-		while (this.accumulator >= this.targetDelta) {
-			this.elapseTick++;
-			this.accumulator -= this.targetDelta;
+		while (internal.accumulator >= internal.targetDelta) {
+			internal.elapseTick++;
+			internal.accumulator -= internal.targetDelta;
 			const tickData = {
-				accumulator: this.accumulator,
-				elapsedMs: this.elapsedMs,
-				deltaMs: this.targetDelta,
+				accumulator: internal.accumulator,
+				elapsedMs: internal.elapsedMs,
+				deltaMs: internal.targetDelta,
 				delta: 1,
 			};
 
@@ -73,7 +78,7 @@ export default class Game {
 			}
 
 			this.world.nextTick(tickData);
-			this.elapsedMs += this.targetDelta;
+			internal.elapsedMs += internal.targetDelta;
 			if (this.player.entity) {
 				// Update camera
 				this.camera.update();
@@ -96,9 +101,9 @@ export default class Game {
 	}
 
 	playAs(entityCore: EntityCore.default) {
-		const entityClient = this.world.entities.get(entityCore.id);
-		if (entityClient) {
-			entityClient.isPlayer = true;
+		const entity = this.world.entities.get(entityCore.id);
+		if (entity) {
+			entity.isUser = true;
 		}
 
 		this.player.playAs(entityCore);
@@ -201,6 +206,10 @@ export default class Game {
 	}
 
 	shootDirection(angle: number, stop = false) {
+		if (!this.player.entity) {
+			return;
+		}
+
 		if (stop) {
 			this.player.state.mouse.left = false;
 			this.room.send('mouseUp', 'left');
@@ -235,7 +244,7 @@ export default class Game {
 
 		this.room.onMessage('pong', (serverTime: number) => {
 			this.stats.ping.end();
-			this.ping = Date.now() - serverTime;
+			this.internal.ping = Date.now() - serverTime;
 			setTimeout(() => {
 				this.stats.ping.begin();
 				this.room.send('ping');
@@ -244,9 +253,9 @@ export default class Game {
 	}
 
 	intervalCheckTps() {
-		this.tpsCountInterval = setInterval(() => {
-			this.tps = this.elapseTick;
-			this.elapseTick = 0;
+		this.internal.tpsCountInterval = window.setInterval(() => {
+			this.internal.tps = this.internal.elapseTick;
+			this.internal.elapseTick = 0;
 		}, 1000);
 	}
 
@@ -265,17 +274,33 @@ export default class Game {
 			zzfx(1.01, 0.05, 115, 0.01, 0.03, 0.08, 2, 1.85, -8.4, 0, 0, 0, 0, 0, 0, 0, 0, 0.54, 0.03, 0.46);
 		});
 
-		this.player.event.on('collision-enter', () => {
-			this.world.filters.lightMap.enabled = true;
-		});
+		// Setup player after main entity spawned
+		this.player.event.on('ready', () => {
+			this.player.entity.event.on('collision-enter', () => {
+				this.world.filters.lightMap.enabled = true;
+			});
 
-		this.player.event.on('collision-exit', () => {
-			this.world.filters.lightMap.enabled = false;
-		});
+			this.player.entity.event.on('collision-exit', () => {
+				this.world.filters.lightMap.enabled = false;
+			});
 
-		// Inventory
-		this.player.inventory.event.on('choose', indexes => {
-			store.dispatch(choose(indexes));
+			// Inventory
+			this.player.entity.inventory.event.on('choose', indexes => {
+				store.dispatch(ItemBarAction.choose(indexes));
+				this.room.send('inventory-choose', indexes);
+				if (indexes.length === 1) {
+				// This.weapon.change(this.player.inventory.current[0]);
+				}
+			});
+
+			this.player.entity.inventory.event.on('add', (item, opts) => {
+				store.dispatch(ItemBarAction.add({item, opts}));
+			});
+
+			store.dispatch(ItemBarAction.updateAll(this.player.entity.inventory.items.map(item => ({
+				id: item.id,
+				amount: item.amount,
+			}))));
 		});
 	}
 
@@ -300,16 +325,16 @@ export default class Game {
 						this.room.send('keyDown', 'd');
 						break;
 					case 'Digit1':
-						store.dispatch(choose([0]));
+						this.player?.entity.inventory.choose(0).catch(console.error);
 						break;
 					case 'Digit2':
-						store.dispatch(choose([1]));
+						this.player?.entity.inventory.choose(1).catch(console.error);
 						break;
 					case 'Digit3':
-						store.dispatch(choose([2]));
+						this.player?.entity.inventory.choose(2).catch(console.error);
 						break;
 					case 'Digit4':
-						store.dispatch(choose([3]));
+						this.player?.entity.inventory.choose(3).catch(console.error);
 						break;
 					default:
 						break;
@@ -344,7 +369,20 @@ export default class Game {
 
 		document.addEventListener('mousedown', mouse => {
 			if (this.isOnline) {
-				this.player.event.emit('mousedown', mouse).catch(console.error);
+				switch (mouse.button) {
+					case 0:
+						this.player.state.mouse.left = true;
+						break;
+					case 1:
+						this.player.state.mouse.middle = true;
+						break;
+					case 2:
+						this.player.state.mouse.right = true;
+						break;
+					default:
+						break;
+				}
+
 				this.room.send('mouseDown', ['left', 'middle', 'right'][mouse.button]);
 			}
 		});
@@ -386,7 +424,7 @@ export default class Game {
 					choosing = 0;
 				}
 
-				store.dispatch(choose([choosing]));
+				this.player.entity.inventory.choose(choosing).catch(console.error);
 			}
 		});
 	}
@@ -444,7 +482,7 @@ export default class Game {
 				return;
 			}
 
-			this.shootDirection(lerpAngle(this.player.entity.body.angle, -data.angle.radian, 1));
+			this.shootDirection(lerpAngle(this.player?.entity.body.angle, -data.angle.radian, 1));
 		});
 	}
 }

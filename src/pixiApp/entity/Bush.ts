@@ -42,22 +42,12 @@ export default class Bush extends Entity {
 			changes.forEach((change: DataChange) => {
 				switch (change.field) {
 					case 'radius':
-						this.entityCore.stats.radius = change.value as number;
+						this.entityCore._stats.radius = change.value as number;
 						break;
 					default:
 						break;
 				}
 			});
 		};
-	}
-
-	shake() {
-		const shake = new PIXI.filters.ShockwaveFilter();
-		shake.waveSize = 0.1;
-		shake.waveSpeed = 0.1;
-		shake.waveCount = 1;
-		shake.padding = 0;
-		shake.center = [0.5, 0.5];
-		this.displayObject.filters = [shake];
 	}
 }

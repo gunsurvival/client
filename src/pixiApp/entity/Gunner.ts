@@ -41,17 +41,17 @@ export default class Gunner extends Entity {
 			changes.forEach((change: DataChange) => {
 				switch (change.field) {
 					case 'health':
-						this.entityCore.stats.health = change.value as number;
-						if (this.isPlayer) {
+						this.entityCore._stats.health = change.value as number;
+						if (this.isUser) {
 							store.dispatch(setHealth(change.value as number));
 						}
 
 						break;
 					case 'radius':
-						this.entityCore.stats.radius = change.value as number;
+						this.entityCore._stats.radius = change.value as number;
 						break;
 					case 'speed':
-						this.entityCore.stats.speed = change.value as number;
+						this.entityCore._stats.speed = change.value as number;
 						break;
 					default:
 						break;

@@ -15,17 +15,28 @@ export const itemBarSlice = createSlice({
 	name: 'itemBarSlice',
 	initialState: {
 		choosing: [0],
-		items: new Array<IItem>(4).fill({id: 'ak47', amount: 1}),
+		items: new Array<IItem>(4).fill({id: 'none', amount: 1}),
 	},
 	reducers: {
 		choose(state: IItemBarState, action: {payload: number[]}) {
-			state.choosing = action.payload;
+			state.choosing = [...action.payload];
 		},
-		updateItems(state: IItemBarState, action: {payload: IItem[]}) {
-			state.items = action.payload;
+		updateAll(state: IItemBarState, action: {payload: IItem[]}) {
+			state.items = [...action.payload];
+		},
+		add(state: IItemBarState, action: {payload: {item: IItem; opts: {index: number; isStack: boolean}}}) {
+			const {item, opts} = action.payload;
+			if (opts.isStack) {
+				state.items[opts.index].amount += item.amount;
+			} else {
+				state.items[opts.index] = {
+					id: item.id,
+					amount: item.amount,
+				};
+			}
 		},
 	},
 });
 
-export const {choose} = itemBarSlice.actions;
+export const {choose, updateAll, add} = itemBarSlice.actions;
 export default itemBarSlice.reducer;

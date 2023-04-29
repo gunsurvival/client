@@ -58,7 +58,7 @@ export default class Bullet extends Entity {
 			changes.forEach((change: DataChange) => {
 				switch (change.field) {
 					case 'radius':
-						this.entityCore.stats.radius = change.value as number;
+						this.entityCore._stats.radius = change.value as number;
 						break;
 					default:
 						break;

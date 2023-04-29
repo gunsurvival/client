@@ -4,10 +4,12 @@ import type * as WorldCore from '@gunsurvival/core/world';
 import type * as EntityCore from '@gunsurvival/core/entity';
 import {lerp} from '@gunsurvival/core/util';
 import type * as EntityServer from '@gunsurvival/server/entity';
+import type {EntityStats} from '@gunsurvival/core/stats';
 import {type DataChange} from '../../lib/colyseus.js';
+import Weapon from '../Weapon.js';
 
 export default abstract class Entity {
-	isPlayer = false; // If this entity is playing by the player
+	isUser = false; // If this entity is playing by the player
 	abstract displayObject: DisplayObject;
 
 	constructor(public entityCore: EntityCore.default) {}
@@ -24,7 +26,7 @@ export default abstract class Entity {
 		// Scale, Angle
 		entityServer.onChange = (changes: DataChange[]) => {
 			changes.forEach((change: DataChange) => {
-				if (this.isPlayer) {
+				if (this.isUser) {
 					return;
 				}
 
@@ -43,9 +45,8 @@ export default abstract class Entity {
 
 		// Stats
 		entityServer.stats.onChange = (changes: DataChange[]) => {
-			changes.forEach((change: DataChange) => {
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-				this.entityCore[change.field] = change.value;
+			changes.forEach((change: DataChange<typeof EntityStats[keyof typeof EntityStats]>) => {
+				this.entityCore._stats[change.field as keyof typeof EntityStats] = change.value;
 			});
 		};
 
@@ -72,6 +73,7 @@ export default abstract class Entity {
 				// 			break;
 				// 	}
 				// } else {
+				console.log(change.previousValue, change.value);
 				switch (change.field) {
 					case 'x':
 						this.entityCore.body.pos.x = change.value as number;
