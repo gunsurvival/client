@@ -15,7 +15,7 @@ export const itemBarSlice = createSlice({
 	name: 'itemBarSlice',
 	initialState: {
 		choosing: [0],
-		items: new Array<IItem>(4).fill({id: 'none', amount: 1}),
+		items: new Array<IItem>(4).fill({id: 'None', amount: 1}),
 	},
 	reducers: {
 		choose(state: IItemBarState, action: {payload: number[]}) {

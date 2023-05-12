@@ -1,25 +1,52 @@
+import {Viewport} from 'pixi-viewport';
+import * as PIXIFilter from 'pixi-filters';
 import {zzfx} from 'zzfx';
 import {SATVector} from 'detect-collisions';
 import Stats from 'stats.js';
-import type * as PIXI from 'pixi.js';
+import * as PIXI from 'pixi.js';
 import nipplejs, {type JoystickManager} from 'nipplejs';
 import type * as WorldServer from '@gunsurvival/server/world';
-import {lerp, lerpAngle, World as WorldCore, Entity as EntityCore, Player} from '@gunsurvival/core';
-import {type Room, Client} from '../lib/colyseus.js';
+import {lerp, lerpAngle, World as WorldCore, type Entity as EntityCore, Player} from '@gunsurvival/core';
+import * as Entity from './entity/index.js';
+import * as Colyseus from '../lib/colyseus.js';
 import {Camera} from './utils/Camera.js';
 import * as World from './world/index.js';
 import {ENDPOINT} from '../constant.js';
 import {store} from '../app/store.js';
 import * as ItemBarAction from '../slices/ItemBarSlice.js';
+import {type IEvent, type WorldEventMap} from '@gunsurvival/core/world/World.js';
 
 export default class Game {
-	room: Room<WorldServer.Casual>;
+	room: Colyseus.Room<WorldServer.Casual>;
 	elapsedMs = 0;
 	pointerPos = new SATVector(0, 0);
-	client = new Client(ENDPOINT);
-	world = new World.Casual();
-	camera = new Camera(this.world);
+	client = new Colyseus.Client(ENDPOINT);
+	camera = new Camera(this);
 	player = new Player.Casual(true);
+	app = new PIXI.Application({
+		width: window.innerWidth,
+		height: window.innerHeight,
+		backgroundColor: '#133a2b',
+		antialias: true,
+		resizeTo: window,
+	});
+
+	viewport = new Viewport({
+		screenWidth: this.app.screen.width,
+		screenHeight: this.app.screen.height,
+	});
+
+	filters = {
+		lightMap: new PIXIFilter.SimpleLightmapFilter(PIXI.Texture.from('images/lightmap.png')),
+		zoomBlur: new PIXIFilter.ZoomBlurFilter({
+			strength: 0,
+			center: new PIXI.Point(this.app.screen.width / 2, this.app.screen.height / 2),
+			innerRadius: 200,
+		}),
+	};
+
+	entities = new Map<string, Entity.default>();
+	worldCore: WorldCore.default; // Reference to the room state if online or create new World if offline
 
 	mobile: {
 		moveJoystick?: JoystickManager;
@@ -47,6 +74,10 @@ export default class Game {
 	constructor(public targetTps = 60) {
 		// Const magicNumber = (0.1 * 128 / tps); // Based on 128 tps, best run on 1-1000tps
 		this.internal.targetDelta = 1000 / targetTps;
+		this.viewport.sortableChildren = true;
+		this.filters.lightMap.enabled = false;
+		this.viewport.filters = [this.filters.lightMap, this.filters.zoomBlur];
+		this.app.stage.addChild(this.viewport);
 	}
 
 	get isOnline() {
@@ -57,8 +88,35 @@ export default class Game {
 		return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 	}
 
+	useWorld(world: WorldCore.default) {
+		this.worldCore = world;
+		this.worldCore.lockApi = true; // Lock the api to prevent any modification from client, only server can modify the world
+
+		this.worldCore.event.on('+entities', (entityCore: EntityCore.default) => {
+			const EntityClass = (Entity as Record<string, unknown>)[entityCore.constructor.name] as new (entC: EntityCore.default) => Entity.default;
+			const entityClient = new EntityClass(entityCore);
+			this.entities.set(entityCore.id, entityClient);
+			this.viewport.addChild(entityClient.displayObject);
+			entityClient.onAdd(entityCore);
+			const entityServer = this.room.state.entities.get(entityCore.id)!;
+			entityClient.hookStateChange(entityServer);
+			if (entityCore.id === this.room.sessionId) {
+				this.playAs(entityCore);
+			}
+		});
+
+		this.worldCore.event.on('-entities', (entityCore: EntityCore.default) => {
+			const entity = this.entities.get(entityCore.id);
+			if (entity) {
+				this.viewport.removeChild(entity.displayObject);
+				this.entities.delete(entityCore.id);
+				entity.onRemove(entityCore);
+			}
+		});
+	}
+
 	nextTick() {
-		const {deltaMS} = this.world.app.ticker;
+		const {deltaMS} = this.app.ticker;
 		const {internal} = this;
 
 		internal.accumulator += deltaMS;
@@ -74,21 +132,23 @@ export default class Game {
 			};
 
 			if (this.player.isReady) {
-				this.player.update(this.world.worldCore, tickData);
+				this.player.update(this.worldCore, tickData);
 			}
 
-			this.world.nextTick(tickData);
+			this.entities.forEach((entity: Entity.default) => {
+				entity.update(this.worldCore, tickData);
+			});
 			internal.elapsedMs += internal.targetDelta;
 			if (this.player.entity) {
 				// Update camera
 				this.camera.update();
 
 				// Update player angle to mouse
-				const entity = this.world.entities.get(this.player.entity.id);
+				const entity = this.entities.get(this.player.entity.id);
 				if (entity && !this.isMobile) {
 					const playerX = entity.displayObject.position.x;
 					const playerY = entity.displayObject.position.y;
-					const playerScreenPos = this.world.viewport.toScreen(playerX, playerY);
+					const playerScreenPos = this.viewport.toScreen(playerX, playerY);
 					this.player.entity.body.angle = Math.atan2(
 						this.pointerPos.y - playerScreenPos.y,
 						this.pointerPos.x - playerScreenPos.x,
@@ -101,7 +161,7 @@ export default class Game {
 	}
 
 	playAs(entityCore: EntityCore.default) {
-		const entity = this.world.entities.get(entityCore.id);
+		const entity = this.entities.get(entityCore.id);
 		if (entity) {
 			entity.isUser = true;
 		}
@@ -128,48 +188,21 @@ export default class Game {
 		this.setupPIXIPointer();
 		this.mobileSupport();
 
-		this.world.useWorld(new WorldCore.Casual());
-		this.world.app.ticker.add(this.nextTick.bind(this));
+		this.useWorld(new WorldCore.Casual());
+		this.app.ticker.add(this.nextTick.bind(this));
 	}
 
 	async connect() {
 		this.room = await this.client.joinOrCreate<WorldServer.Casual>('casual');
-
-		this.room.state.entities.onAdd = (entityServer, sessionId: string) => {
-			// Redefine this if constructor Entity.js is changed
-			const EntityCoreClass = (EntityCore as Record<string, unknown>)[entityServer.name] as (new () => EntityCore.default);
-			const entityCore = new EntityCoreClass();
-
-			// !!! this.world.add call physics.addBody(entityCore.body) so we need to init entityCore.body first !!!
-			// ! This is a bug of physics engine maybe because all entities will spawn at the same position (0, 0) !
-			entityCore.init({...entityServer});
-			this.world.add(entityCore);
-
-			const entityClient = this.world.entities.get(entityServer.id);
-			if (entityClient) {
-				entityClient.hookStateChange(entityServer);
-			} else {
-				console.log(entityServer.id, entityCore);
-			}
-
-			if (sessionId === this.room.sessionId) {
-				this.playAs(entityCore);
-			}
-		};
-
-		this.room.state.entities.onRemove = (entityServer, sessionId: string) => {
-			try {
-				const entity = this.world.entities.get(entityServer.id);
-				if (!entity) {
-					return;
-				}
-
-				this.world.remove(entity.entityCore);
-			} catch (e) {
-				console.log(entityServer);
-				console.log(e);
-			}
-		};
+		this.room.state.events.onAdd(event => {
+			const ev: IEvent = {
+				type: event.type,
+				args: JSON.parse(event.args) as any[],
+			};
+			this.worldCore.events.push(ev);
+			this.worldCore.event.emit('+events', ev).catch(console.error);
+			this.worldCore.event.emit(ev.type as keyof WorldEventMap, ev.args as any).catch(console.error);
+		});
 	}
 
 	moveDirection(direction: 'up' | 'left' | 'right' | 'down' | 'stop', isKeydown = true) {
@@ -224,8 +257,8 @@ export default class Game {
 	resize() {
 		const fitWidth = window.innerWidth / 1920;
 		const fitHeight = window.innerHeight / 948;
-		this.world.viewport.setZoom(Math.max(fitWidth, fitHeight), true);
-		this.world.app.resize();
+		this.viewport.setZoom(Math.max(fitWidth, fitHeight), true);
+		this.app.resize();
 	}
 
 	mobileSupport() {
@@ -277,11 +310,11 @@ export default class Game {
 		// Setup player after main entity spawned
 		this.player.event.on('ready', () => {
 			this.player.entity.event.on('collision-enter', () => {
-				this.world.filters.lightMap.enabled = true;
+				this.filters.lightMap.enabled = true;
 			});
 
 			this.player.entity.event.on('collision-exit', () => {
-				this.world.filters.lightMap.enabled = false;
+				this.filters.lightMap.enabled = false;
 			});
 
 			// Inventory
@@ -430,10 +463,10 @@ export default class Game {
 	}
 
 	setupPIXIPointer() {
-		this.world.app.stage.interactive = true;
-		this.world.app.stage.hitArea = this.world.app.screen;
+		this.app.stage.interactive = true;
+		this.app.stage.hitArea = this.app.screen;
 
-		this.world.app.stage.addEventListener('pointermove', (event: Event) => {
+		this.app.stage.addEventListener('pointermove', (event: Event) => {
 			const {global} = event as PIXI.FederatedMouseEvent;
 			this.pointerPos.x = global.x;
 			this.pointerPos.y = global.y;

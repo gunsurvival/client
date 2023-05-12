@@ -1,4 +1,4 @@
-// colyseus.js@0.15.8 (@colyseus/schema 2.0.7)
+// colyseus.js@0.14.14 (@colyseus/schema 1.0.45)
 function _mergeNamespaces(n, m) {
     m.forEach(function (e) {
         e && typeof e !== 'string' && !Array.isArray(e) && Object.keys(e).forEach(function (k) {
@@ -21,7 +21,7 @@ function _mergeNamespaces(n, m) {
  * Support Android 4.4.x
  */
 if (!ArrayBuffer.isView) {
-    ArrayBuffer.isView = (a) => {
+    ArrayBuffer.isView = function (a) {
         return a !== null && typeof (a) === 'object' && a.buffer instanceof ArrayBuffer;
     };
 }
@@ -31,6 +31,75 @@ if (typeof (globalThis) === "undefined" &&
     typeof (window) !== "undefined") {
     // @ts-ignore
     window['globalThis'] = window;
+}
+
+/******************************************************************************
+Copyright (c) Microsoft Corporation.
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+PERFORMANCE OF THIS SOFTWARE.
+***************************************************************************** */
+/* global Reflect, Promise */
+
+var extendStatics = function(d, b) {
+    extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+    return extendStatics(d, b);
+};
+
+function __extends(d, b) {
+    if (typeof b !== "function" && b !== null)
+        throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+    extendStatics(d, b);
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+}
+
+function __awaiter(thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+}
+
+function __generator(thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
 }
 
 function apply(src, tar) {
@@ -106,7 +175,7 @@ var post_1 = post;
 var put_1 = put;
 var send_1 = send;
 
-var __node_modules_httpie_xhr = {
+var xhr = {
 	del: del_1,
 	get: get_1,
 	patch: patch_1,
@@ -117,28 +186,25 @@ var __node_modules_httpie_xhr = {
 
 var http = /*#__PURE__*/_mergeNamespaces({
     __proto__: null,
-    'default': __node_modules_httpie_xhr,
+    'default': xhr,
     del: del_1,
     get: get_1,
     patch: patch_1,
     post: post_1,
     put: put_1,
     send: send_1
-}, [__node_modules_httpie_xhr]);
+}, [xhr]);
 
-var CloseCode;
-(function (CloseCode) {
-    CloseCode[CloseCode["CONSENTED"] = 4000] = "CONSENTED";
-    CloseCode[CloseCode["DEVMODE_RESTART"] = 4010] = "DEVMODE_RESTART";
-})(CloseCode || (CloseCode = {}));
-class ServerError extends Error {
-    code;
-    constructor(code, message) {
-        super(message);
-        this.name = "ServerError";
-        this.code = code;
+var ServerError = /** @class */ (function (_super) {
+    __extends(ServerError, _super);
+    function ServerError(code, message) {
+        var _this = _super.call(this, message) || this;
+        _this.name = "ServerError";
+        _this.code = code;
+        return _this;
     }
-}
+    return ServerError;
+}(Error));
 
 /**
  * Copyright (c) 2014 Ion Drive Software Ltd.
@@ -165,14 +231,13 @@ class ServerError extends Error {
 /**
  * Patch for Colyseus:
  * -------------------
- * notepack.io@3.0.1
  *
  * added `offset` on Decoder constructor, for messages arriving with a code
  * before actual msgpack data
  */
-//
+// 
 // DECODER
-//
+// 
 function Decoder(buffer, offset) {
     this._offset = offset;
     if (buffer instanceof ArrayBuffer) {
@@ -300,14 +365,6 @@ Decoder.prototype._parse = function () {
             length = this._view.getUint8(this._offset);
             type = this._view.getInt8(this._offset + 1);
             this._offset += 2;
-            if (type === -1) {
-                // timestamp 96
-                var ns = this._view.getUint32(this._offset);
-                hi = this._view.getInt32(this._offset + 4);
-                lo = this._view.getUint32(this._offset + 8);
-                this._offset += 12;
-                return new Date((hi * 0x100000000 + lo) * 1e3 + ns / 1e6);
-            }
             return [type, this._bin(length)];
         case 0xc8:
             length = this._view.getUint16(this._offset);
@@ -369,7 +426,6 @@ Decoder.prototype._parse = function () {
             type = this._view.getInt8(this._offset);
             this._offset += 1;
             if (type === 0x00) {
-                // custom encoding for 'undefined' (kept for backward-compatibility)
                 this._offset += 1;
                 return void 0;
             }
@@ -381,30 +437,15 @@ Decoder.prototype._parse = function () {
         case 0xd6:
             type = this._view.getInt8(this._offset);
             this._offset += 1;
-            if (type === -1) {
-                // timestamp 32
-                value = this._view.getUint32(this._offset);
-                this._offset += 4;
-                return new Date(value * 1e3);
-            }
             return [type, this._bin(4)];
         case 0xd7:
             type = this._view.getInt8(this._offset);
             this._offset += 1;
             if (type === 0x00) {
-                // custom date encoding (kept for backward-compatibility)
                 hi = this._view.getInt32(this._offset) * Math.pow(2, 32);
                 lo = this._view.getUint32(this._offset + 4);
                 this._offset += 8;
                 return new Date(hi + lo);
-            }
-            if (type === -1) {
-                // timestamp 64
-                hi = this._view.getUint32(this._offset);
-                lo = this._view.getUint32(this._offset + 4);
-                this._offset += 8;
-                var s = (hi & 0x3) * 0x100000000 + lo;
-                return new Date(s * 1e3 + (hi >>> 2) / 1e6);
             }
             return [type, this._bin(8)];
         case 0xd8:
@@ -445,7 +486,8 @@ Decoder.prototype._parse = function () {
     }
     throw new Error('Could not parse');
 };
-function decode(buffer, offset = 0) {
+function decode(buffer, offset) {
+    if (offset === void 0) { offset = 0; }
     var decoder = new Decoder(buffer, offset);
     var value = decoder._parse();
     if (decoder._offset !== buffer.byteLength) {
@@ -453,11 +495,9 @@ function decode(buffer, offset = 0) {
     }
     return value;
 }
-//
+// 
 // ENCODER
-//
-var TIMESTAMP32_MAX_SEC = 0x100000000 - 1; // 32-bit unsigned int
-var TIMESTAMP64_MAX_SEC = 0x400000000 - 1; // 34-bit unsigned int
+// 
 function utf8Write(view, offset, str) {
     var c = 0;
     for (var i = 0, l = str.length; i < l; i++) {
@@ -628,31 +668,13 @@ function _encode(bytes, defers, value) {
             }
             return size;
         }
+        // fixext 8 / Date
         if (value instanceof Date) {
-            var ms = value.getTime();
-            var s = Math.floor(ms / 1e3);
-            var ns = (ms - s * 1e3) * 1e6;
-            if (s >= 0 && ns >= 0 && s <= TIMESTAMP64_MAX_SEC) {
-                if (ns === 0 && s <= TIMESTAMP32_MAX_SEC) {
-                    // timestamp 32
-                    bytes.push(0xd6, 0xff, s >> 24, s >> 16, s >> 8, s);
-                    return 6;
-                }
-                else {
-                    // timestamp 64
-                    hi = s / 0x100000000;
-                    lo = s & 0xffffffff;
-                    bytes.push(0xd7, 0xff, ns >> 22, ns >> 14, ns >> 6, hi, lo >> 24, lo >> 16, lo >> 8, lo);
-                    return 10;
-                }
-            }
-            else {
-                // timestamp 96
-                hi = Math.floor(s / 0x100000000);
-                lo = s >>> 0;
-                bytes.push(0xc7, 0x0c, 0xff, ns >> 24, ns >> 16, ns >> 8, ns, hi >> 24, hi >> 16, hi >> 8, hi, lo >> 24, lo >> 16, lo >> 8, lo);
-                return 15;
-            }
+            var time = value.getTime();
+            hi = Math.floor(time / Math.pow(2, 32));
+            lo = time >>> 0;
+            bytes.push(0xd7, 0, hi >> 24, hi >> 16, hi >> 8, hi, lo >> 24, lo >> 16, lo >> 8, lo);
+            return 10;
         }
         if (value instanceof ArrayBuffer) {
             length = value.byteLength;
@@ -686,7 +708,7 @@ function _encode(bytes, defers, value) {
         var allKeys = Object.keys(value);
         for (i = 0, l = allKeys.length; i < l; i++) {
             key = allKeys[i];
-            if (value[key] !== undefined && typeof value[key] !== 'function') {
+            if (typeof value[key] !== 'function') {
                 keys.push(key);
             }
         }
@@ -721,13 +743,10 @@ function _encode(bytes, defers, value) {
         bytes.push(value ? 0xc3 : 0xc2);
         return 1;
     }
+    // fixext 1 / undefined
     if (type === 'undefined') {
-        bytes.push(0xc0);
-        return 1;
-    }
-    // custom types like BigInt (typeof value === 'bigint')
-    if (typeof value.toJSON === 'function') {
-        return _encode(bytes, defers, value.toJSON());
+        bytes.push(0xd4, 0, 0);
+        return 3;
     }
     throw new Error('Could not encode');
 }
@@ -780,56 +799,60 @@ var browser = function () {
   );
 };
 
-const WebSocket = globalThis.WebSocket || browser;
-class WebSocketTransport {
-    events;
-    ws;
-    protocols;
-    constructor(events) {
+var WebSocket = globalThis.WebSocket || browser;
+var WebSocketTransport = /** @class */ (function () {
+    function WebSocketTransport(events) {
         this.events = events;
     }
-    send(data) {
+    WebSocketTransport.prototype.send = function (data) {
         if (data instanceof ArrayBuffer) {
             this.ws.send(data);
         }
         else if (Array.isArray(data)) {
             this.ws.send((new Uint8Array(data)).buffer);
         }
-    }
-    connect(url) {
+    };
+    WebSocketTransport.prototype.connect = function (url) {
         this.ws = new WebSocket(url, this.protocols);
         this.ws.binaryType = 'arraybuffer';
         this.ws.onopen = this.events.onopen;
         this.ws.onmessage = this.events.onmessage;
         this.ws.onclose = this.events.onclose;
         this.ws.onerror = this.events.onerror;
-    }
-    close(code, reason) {
+    };
+    WebSocketTransport.prototype.close = function (code, reason) {
         this.ws.close(code, reason);
-    }
-    get isOpen() {
-        return this.ws.readyState === WebSocket.OPEN;
-    }
-}
+    };
+    return WebSocketTransport;
+}());
 
-class Connection {
-    transport;
-    events = {};
-    constructor() {
+var Connection = /** @class */ (function () {
+    function Connection() {
+        this.events = {};
         this.transport = new WebSocketTransport(this.events);
     }
-    send(data) {
+    Connection.prototype.send = function (data) {
         this.transport.send(data);
-    }
-    connect(url) {
+    };
+    Connection.prototype.connect = function (url) {
         this.transport.connect(url);
-    }
-    close(code, reason) {
+    };
+    Connection.prototype.close = function (code, reason) {
         this.transport.close(code, reason);
+    };
+    return Connection;
+}());
+
+var serializers = {};
+function registerSerializer(id, serializer) {
+    serializers[id] = serializer;
+}
+function getSerializer(id) {
+    var serializer = serializers[id];
+    if (!serializer) {
+        throw new Error("missing serializer: " + id);
     }
-    get isOpen() {
-        return this.transport.isOpen;
-    }
+    return serializer;
 }
 
 // Use codes between 0~127 for lesser throughput (1 byte)
@@ -844,7 +867,6 @@ var Protocol;
     Protocol[Protocol["ROOM_STATE"] = 14] = "ROOM_STATE";
     Protocol[Protocol["ROOM_STATE_PATCH"] = 15] = "ROOM_STATE_PATCH";
     Protocol[Protocol["ROOM_DATA_SCHEMA"] = 16] = "ROOM_DATA_SCHEMA";
-    Protocol[Protocol["ROOM_DATA_BYTES"] = 17] = "ROOM_DATA_BYTES";
 })(Protocol || (Protocol = {}));
 var ErrorCode;
 (function (ErrorCode) {
@@ -857,7 +879,7 @@ var ErrorCode;
     ErrorCode[ErrorCode["APPLICATION_ERROR"] = 4216] = "APPLICATION_ERROR";
 })(ErrorCode || (ErrorCode = {}));
 function utf8Read(view, offset) {
-    const length = view[offset++];
+    var length = view[offset++];
     var string = '', chr = 0;
     for (var i = offset, end = offset + length; i < end; i++) {
         var byte = view[i];
@@ -895,10 +917,11 @@ function utf8Read(view, offset) {
     return string;
 }
 // Faster for short strings than Buffer.byteLength
-function utf8Length(str = '') {
-    let c = 0;
-    let length = 0;
-    for (let i = 0, l = str.length; i < l; i++) {
+function utf8Length(str) {
+    if (str === void 0) { str = ''; }
+    var c = 0;
+    var length = 0;
+    for (var i = 0, l = str.length; i < l; i++) {
         c = str.charCodeAt(i);
         if (c < 0x80) {
             length += 1;
@@ -917,18 +940,6 @@ function utf8Length(str = '') {
     return length + 1;
 }
 
-const serializers = {};
-function registerSerializer(id, serializer) {
-    serializers[id] = serializer;
-}
-function getSerializer(id) {
-    const serializer = serializers[id];
-    if (!serializer) {
-        throw new Error("missing serializer: " + id);
-    }
-    return serializer;
-}
-
 let createNanoEvents = () => ({
   events: {},
   emit(event, ...args) {
@@ -941,43 +952,72 @@ let createNanoEvents = () => ({
   }
 });
 
-class EventEmitter {
-    handlers = [];
-    register(cb, once = false) {
-        this.handlers.push(cb);
-        return this;
-    }
-    invoke(...args) {
-        this.handlers.forEach((handler) => handler.apply(this, args));
-    }
-    invokeAsync(...args) {
-        return Promise.all(this.handlers.map((handler) => handler.apply(this, args)));
-    }
-    remove(cb) {
-        const index = this.handlers.indexOf(cb);
-        this.handlers[index] = this.handlers[this.handlers.length - 1];
-        this.handlers.pop();
-    }
-    clear() {
+var EventEmitter = /** @class */ (function () {
+    function EventEmitter() {
         this.handlers = [];
     }
-}
+    EventEmitter.prototype.register = function (cb, once) {
+        this.handlers.push(cb);
+        return this;
+    };
+    EventEmitter.prototype.invoke = function () {
+        var _this = this;
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        this.handlers.forEach(function (handler) { return handler.apply(_this, args); });
+    };
+    EventEmitter.prototype.invokeAsync = function () {
+        var _this = this;
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        return Promise.all(this.handlers.map(function (handler) { return handler.apply(_this, args); }));
+    };
+    EventEmitter.prototype.remove = function (cb) {
+        var index = this.handlers.indexOf(cb);
+        this.handlers[index] = this.handlers[this.handlers.length - 1];
+        this.handlers.pop();
+    };
+    EventEmitter.prototype.clear = function () {
+        this.handlers = [];
+    };
+    return EventEmitter;
+}());
 function createSignal() {
-    const emitter = new EventEmitter();
+    var emitter = new EventEmitter();
     function register(cb) {
         return emitter.register(cb, this === null);
     }
-    register.once = (cb) => {
-        const callback = function (...args) {
+    register.once = function (cb) {
+        var callback = function () {
+            var args = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                args[_i] = arguments[_i];
+            }
             cb.apply(this, args);
             emitter.remove(callback);
         };
         emitter.register(callback);
     };
-    register.remove = (cb) => emitter.remove(cb);
-    register.invoke = (...args) => emitter.invoke(...args);
-    register.invokeAsync = (...args) => emitter.invokeAsync(...args);
-    register.clear = () => emitter.clear();
+    register.remove = function (cb) { return emitter.remove(cb); };
+    register.invoke = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        return emitter.invoke.apply(emitter, args);
+    };
+    register.invokeAsync = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        return emitter.invokeAsync.apply(emitter, args);
+    };
+    register.clear = function () { return emitter.clear(); };
     return register;
 }
 
@@ -988,7 +1028,7 @@ function createCommonjsModule(fn) {
 	return fn(module, module.exports), module.exports;
 }
 
-var __node_modules__colyseus_schema_build_umd = createCommonjsModule(function (module, exports) {
+var umd = createCommonjsModule(function (module, exports) {
 (function (global, factory) {
     factory(exports) ;
 })(commonjsGlobal, (function (exports) {
@@ -1079,6 +1119,76 @@ var __node_modules__colyseus_schema_build_umd = createCommonjsModule(function (m
     //     CLEAR = 10,
     // }
 
+    //
+    // Root holds all schema references by unique id
+    //
+    var Root = /** @class */ (function () {
+        function Root() {
+            //
+            // Relation of refId => Schema structure
+            // For direct access of structures during decoding time.
+            //
+            this.refs = new Map();
+            this.refCounts = {};
+            this.deletedRefs = new Set();
+            this.nextUniqueId = 0;
+        }
+        Root.prototype.getNextUniqueId = function () {
+            return this.nextUniqueId++;
+        };
+        // for decoding
+        Root.prototype.addRef = function (refId, ref, incrementCount) {
+            if (incrementCount === void 0) { incrementCount = true; }
+            this.refs.set(refId, ref);
+            if (incrementCount) {
+                this.refCounts[refId] = (this.refCounts[refId] || 0) + 1;
+            }
+        };
+        // for decoding
+        Root.prototype.removeRef = function (refId) {
+            this.refCounts[refId] = this.refCounts[refId] - 1;
+            this.deletedRefs.add(refId);
+        };
+        Root.prototype.clearRefs = function () {
+            this.refs.clear();
+            this.deletedRefs.clear();
+            this.refCounts = {};
+        };
+        // for decoding
+        Root.prototype.garbageCollectDeletedRefs = function () {
+            var _this = this;
+            this.deletedRefs.forEach(function (refId) {
+                if (_this.refCounts[refId] <= 0) {
+                    var ref = _this.refs.get(refId);
+                    //
+                    // Ensure child schema instances have their references removed as well.
+                    //
+                    if (ref instanceof Schema) {
+                        for (var fieldName in ref['_definition'].schema) {
+                            if (typeof (ref['_definition'].schema[fieldName]) !== "string" &&
+                                ref[fieldName] &&
+                                ref[fieldName]['$changes']) {
+                                _this.removeRef(ref[fieldName]['$changes'].refId);
+                            }
+                        }
+                    }
+                    else {
+                        var definition = ref['$changes'].parent._definition;
+                        var type = definition.schema[definition.fieldsByIndex[ref['$changes'].parentIndex]];
+                        if (typeof (Object.values(type)[0]) === "function") {
+                            Array.from(ref.values())
+                                .forEach(function (child) { return _this.removeRef(child['$changes'].refId); });
+                        }
+                    }
+                    _this.refs.delete(refId);
+                    delete _this.refCounts[refId];
+                }
+            });
+            // clear deleted refs.
+            this.deletedRefs.clear();
+        };
+        return Root;
+    }());
     var ChangeTree = /** @class */ (function () {
         function ChangeTree(ref, parent, root) {
             this.changed = false;
@@ -1282,49 +1392,13 @@ var __node_modules__colyseus_schema_build_umd = createCommonjsModule(function (m
         return ChangeTree;
     }());
 
-    function addCallback($callbacks, op, callback, existing) {
-        // initialize list of callbacks
-        if (!$callbacks[op]) {
-            $callbacks[op] = [];
-        }
-        $callbacks[op].push(callback);
-        //
-        // Trigger callback for existing elements
-        // - OPERATION.ADD
-        // - OPERATION.REPLACE
-        //
-        existing === null || existing === void 0 ? void 0 : existing.forEach(function (item, key) { return callback(item, key); });
-        return function () { return spliceOne($callbacks[op], $callbacks[op].indexOf(callback)); };
-    }
-    function removeChildRefs(changes) {
-        var _this = this;
-        var needRemoveRef = (typeof (this.$changes.getType()) !== "string");
-        this.$items.forEach(function (item, key) {
-            changes.push({
-                refId: _this.$changes.refId,
-                op: exports.OPERATION.DELETE,
-                field: key,
-                value: undefined,
-                previousValue: item
-            });
-            if (needRemoveRef) {
-                _this.$changes.root.removeRef(item['$changes'].refId);
-            }
-        });
-    }
-    function spliceOne(arr, index) {
-        // manually splice an array
-        if (index === -1 || index >= arr.length) {
-            return false;
-        }
-        var len = arr.length - 1;
-        for (var i = index; i < len; i++) {
-            arr[i] = arr[i + 1];
-        }
-        arr.length = len;
-        return true;
-    }
-
+    //
+    // Notes:
+    // -----
+    //
+    // - The tsconfig.json of @colyseus/schema uses ES2018.
+    // - ES2019 introduces `flatMap` / `flat`, which is not currently relevant, and caused other issues.
+    //
     var DEFAULT_SORT = function (a, b) {
         var A = a.toString();
         var B = b.toString();
@@ -1395,14 +1469,6 @@ var __node_modules__colyseus_schema_build_umd = createCommonjsModule(function (m
             this.$refId = 0;
             this.push.apply(this, items);
         }
-        ArraySchema.prototype.onAdd = function (callback, triggerAll) {
-            if (triggerAll === void 0) { triggerAll = true; }
-            return addCallback((this.$callbacks || (this.$callbacks = [])), exports.OPERATION.ADD, callback, (triggerAll)
-                ? this.$items
-                : undefined);
-        };
-        ArraySchema.prototype.onRemove = function (callback) { return addCallback(this.$callbacks || (this.$callbacks = []), exports.OPERATION.DELETE, callback); };
-        ArraySchema.prototype.onChange = function (callback) { return addCallback(this.$callbacks || (this.$callbacks = []), exports.OPERATION.REPLACE, callback); };
         ArraySchema.is = function (type) {
             return (
             // type format: ["string"]
@@ -1484,19 +1550,18 @@ var __node_modules__colyseus_schema_build_umd = createCommonjsModule(function (m
             this.$indexes.delete(index);
             return this.$items.delete(index);
         };
-        ArraySchema.prototype.clear = function (changes) {
+        ArraySchema.prototype.clear = function (isDecoding) {
+            var _this = this;
             // discard previous operations.
             this.$changes.discard(true, true);
             this.$changes.indexes = {};
             // clear previous indexes
             this.$indexes.clear();
-            //
-            // When decoding:
-            // - enqueue items for DELETE callback.
-            // - flag child items for garbage collection.
-            //
-            if (changes) {
-                removeChildRefs.call(this, changes);
+            // flag child items for garbage collection.
+            if (isDecoding && typeof (this.$changes.getType()) !== "string") {
+                this.$items.forEach(function (item) {
+                    _this.$changes.root.removeRef(item['$changes'].refId);
+                });
             }
             // clear items
             this.$items.clear();
@@ -1508,7 +1573,6 @@ var __node_modules__colyseus_schema_build_umd = createCommonjsModule(function (m
          * Combines two or more arrays.
          * @param items Additional items to add to the end of array1.
          */
-        // @ts-ignore
         ArraySchema.prototype.concat = function () {
             var _a;
             var items = [];
@@ -1527,7 +1591,6 @@ var __node_modules__colyseus_schema_build_umd = createCommonjsModule(function (m
         /**
          * Reverses the elements in an Array.
          */
-        // @ts-ignore
         ArraySchema.prototype.reverse = function () {
             var _this = this;
             var indexes = Array.from(this.$items.keys());
@@ -1556,9 +1619,7 @@ var __node_modules__colyseus_schema_build_umd = createCommonjsModule(function (m
          * @param end The end of the specified portion of the array. This is exclusive of the element at the index 'end'.
          */
         ArraySchema.prototype.slice = function (start, end) {
-            var sliced = new ArraySchema();
-            sliced.push.apply(sliced, Array.from(this.$items.values()).slice(start, end));
-            return sliced;
+            return new (ArraySchema.bind.apply(ArraySchema, __spreadArray([void 0], Array.from(this.$items.values()).slice(start, end), false)))();
         };
         /**
          * Sorts an array.
@@ -1756,6 +1817,9 @@ var __node_modules__colyseus_schema_build_umd = createCommonjsModule(function (m
         ArraySchema.prototype[Symbol.iterator] = function () {
             return Array.from(this.$items.values())[Symbol.iterator]();
         };
+        ArraySchema.prototype[Symbol.unscopables] = function () {
+            return this.$items[Symbol.unscopables]();
+        };
         /**
          * Returns an iterable of key, value pairs for every entry in the array
          */
@@ -1799,17 +1863,8 @@ var __node_modules__colyseus_schema_build_umd = createCommonjsModule(function (m
          */
         // @ts-ignore
         ArraySchema.prototype.flat = function (depth) {
+            // @ts-ignore
             throw new Error("ArraySchema#flat() is not supported.");
-        };
-        ArraySchema.prototype.findLast = function () {
-            var arr = Array.from(this.$items.values());
-            // @ts-ignore
-            return arr.findLast.apply(arr, arguments);
-        };
-        ArraySchema.prototype.findLastIndex = function () {
-            var arr = Array.from(this.$items.values());
-            // @ts-ignore
-            return arr.findLastIndex.apply(arr, arguments);
         };
         // get size () {
         //     return this.$items.size;
@@ -1852,6 +1907,9 @@ var __node_modules__colyseus_schema_build_umd = createCommonjsModule(function (m
                     : item); }), false)))();
             }
             return cloned;
+        };
+        ArraySchema.prototype.triggerAll = function () {
+            Schema.prototype.triggerAll.apply(this);
         };
         return ArraySchema;
     }());
@@ -1907,14 +1965,6 @@ var __node_modules__colyseus_schema_build_umd = createCommonjsModule(function (m
                 }
             }
         }
-        MapSchema.prototype.onAdd = function (callback, triggerAll) {
-            if (triggerAll === void 0) { triggerAll = true; }
-            return addCallback((this.$callbacks || (this.$callbacks = [])), exports.OPERATION.ADD, callback, (triggerAll)
-                ? this.$items
-                : undefined);
-        };
-        MapSchema.prototype.onRemove = function (callback) { return addCallback(this.$callbacks || (this.$callbacks = []), exports.OPERATION.DELETE, callback); };
-        MapSchema.prototype.onChange = function (callback) { return addCallback(this.$callbacks || (this.$callbacks = []), exports.OPERATION.REPLACE, callback); };
         MapSchema.is = function (type) {
             return type['map'] !== undefined;
         };
@@ -1972,19 +2022,18 @@ var __node_modules__colyseus_schema_build_umd = createCommonjsModule(function (m
             this.$changes.delete(key);
             return this.$items.delete(key);
         };
-        MapSchema.prototype.clear = function (changes) {
+        MapSchema.prototype.clear = function (isDecoding) {
+            var _this = this;
             // discard previous operations.
             this.$changes.discard(true, true);
             this.$changes.indexes = {};
             // clear previous indexes
             this.$indexes.clear();
-            //
-            // When decoding:
-            // - enqueue items for DELETE callback.
-            // - flag child items for garbage collection.
-            //
-            if (changes) {
-                removeChildRefs.call(this, changes);
+            // flag child items for garbage collection.
+            if (isDecoding && typeof (this.$changes.getType()) !== "string") {
+                this.$items.forEach(function (item) {
+                    _this.$changes.root.removeRef(item['$changes'].refId);
+                });
             }
             // clear items
             this.$items.clear();
@@ -2060,6 +2109,9 @@ var __node_modules__colyseus_schema_build_umd = createCommonjsModule(function (m
             }
             return cloned;
         };
+        MapSchema.prototype.triggerAll = function () {
+            Schema.prototype.triggerAll.apply(this);
+        };
         return MapSchema;
     }());
 
@@ -2098,9 +2150,6 @@ var __node_modules__colyseus_schema_build_umd = createCommonjsModule(function (m
             this.schema[field] = (Array.isArray(type))
                 ? { array: type[0] }
                 : type;
-        };
-        SchemaDefinition.prototype.hasField = function (field) {
-            return this.indexes[field] !== undefined;
         };
         SchemaDefinition.prototype.addFilter = function (field, cb) {
             if (!this.filters) {
@@ -2157,43 +2206,26 @@ var __node_modules__colyseus_schema_build_umd = createCommonjsModule(function (m
             this.types[typeid] = schema;
             this.schemas.set(schema, typeid);
         };
-        Context.create = function (options) {
-            if (options === void 0) { options = {}; }
+        Context.create = function (context) {
+            if (context === void 0) { context = new Context; }
             return function (definition) {
-                if (!options.context) {
-                    options.context = new Context();
-                }
-                return type(definition, options);
+                return type(definition, context);
             };
         };
         return Context;
     }());
     var globalContext = new Context();
     /**
-     * [See documentation](https://docs.colyseus.io/state/schema/)
-     *
-     * Annotate a Schema property to be serializeable.
-     * \@type()'d fields are automatically flagged as "dirty" for the next patch.
-     *
-     * @example Standard usage, with automatic change tracking.
-     * ```
-     * \@type("string") propertyName: string;
-     * ```
-     *
-     * @example You can provide the "manual" option if you'd like to manually control your patches via .setDirty().
-     * ```
-     * \@type("string", { manual: true })
-     * ```
+     * `@type()` decorator for proxies
      */
-    function type(type, options) {
-        if (options === void 0) { options = {}; }
+    function type(type, context) {
+        if (context === void 0) { context = globalContext; }
         return function (target, field) {
-            var context = options.context || globalContext;
+            if (!type) {
+                throw new Error("Type not found. Ensure your `@type` annotations are correct and that you don't have any circular dependencies.");
+            }
             var constructor = target.constructor;
             constructor._context = context;
-            if (!type) {
-                throw new Error("".concat(constructor.name, ": @type() reference provided for \"").concat(field, "\" is undefined. Make sure you don't have any circular dependencies."));
-            }
             /*
              * static schema
              */
@@ -2232,15 +2264,6 @@ var __node_modules__colyseus_schema_build_umd = createCommonjsModule(function (m
                 if (typeof (childType) !== "string" && !context.has(childType)) {
                     context.add(childType);
                 }
-            }
-            if (options.manual) {
-                // do not declare getter/setter descriptor
-                definition.descriptors[field] = {
-                    enumerable: true,
-                    configurable: true,
-                    writable: true,
-                };
-                return;
             }
             var fieldCached = "_".concat(field);
             definition.descriptors[fieldCached] = {
@@ -2327,7 +2350,7 @@ var __node_modules__colyseus_schema_build_umd = createCommonjsModule(function (m
      * `@deprecated()` flag a field as deprecated.
      * The previous `@type()` annotation should remain along with this one.
      */
-    function deprecated(throws) {
+    function deprecated(throws, context) {
         if (throws === void 0) { throws = true; }
         return function (target, field) {
             var constructor = target.constructor;
@@ -2343,13 +2366,10 @@ var __node_modules__colyseus_schema_build_umd = createCommonjsModule(function (m
             }
         };
     }
-    function defineTypes(target, fields, options) {
-        if (options === void 0) { options = {}; }
-        if (!options.context) {
-            options.context = target._context || options.context || globalContext;
-        }
+    function defineTypes(target, fields, context) {
+        if (context === void 0) { context = target._context || globalContext; }
         for (var field in fields) {
-            type(fields[field], options)(target.prototype, field);
+            type(fields[field], context)(target.prototype, field);
         }
         return target;
     }
@@ -2887,14 +2907,6 @@ var __node_modules__colyseus_schema_build_umd = createCommonjsModule(function (m
                 initialValues.forEach(function (v) { return _this.add(v); });
             }
         }
-        CollectionSchema.prototype.onAdd = function (callback, triggerAll) {
-            if (triggerAll === void 0) { triggerAll = true; }
-            return addCallback((this.$callbacks || (this.$callbacks = [])), exports.OPERATION.ADD, callback, (triggerAll)
-                ? this.$items
-                : undefined);
-        };
-        CollectionSchema.prototype.onRemove = function (callback) { return addCallback(this.$callbacks || (this.$callbacks = []), exports.OPERATION.DELETE, callback); };
-        CollectionSchema.prototype.onChange = function (callback) { return addCallback(this.$callbacks || (this.$callbacks = []), exports.OPERATION.REPLACE, callback); };
         CollectionSchema.is = function (type) {
             return type['collection'] !== undefined;
         };
@@ -2938,19 +2950,18 @@ var __node_modules__colyseus_schema_build_umd = createCommonjsModule(function (m
             this.$indexes.delete(index);
             return this.$items.delete(index);
         };
-        CollectionSchema.prototype.clear = function (changes) {
+        CollectionSchema.prototype.clear = function (isDecoding) {
+            var _this = this;
             // discard previous operations.
             this.$changes.discard(true, true);
             this.$changes.indexes = {};
             // clear previous indexes
             this.$indexes.clear();
-            //
-            // When decoding:
-            // - enqueue items for DELETE callback.
-            // - flag child items for garbage collection.
-            //
-            if (changes) {
-                removeChildRefs.call(this, changes);
+            // flag child items for garbage collection.
+            if (isDecoding && typeof (this.$changes.getType()) !== "string") {
+                this.$items.forEach(function (item) {
+                    _this.$changes.root.removeRef(item['$changes'].refId);
+                });
             }
             // clear items
             this.$items.clear();
@@ -3024,6 +3035,9 @@ var __node_modules__colyseus_schema_build_umd = createCommonjsModule(function (m
             }
             return cloned;
         };
+        CollectionSchema.prototype.triggerAll = function () {
+            Schema.prototype.triggerAll.apply(this);
+        };
         return CollectionSchema;
     }());
 
@@ -3038,14 +3052,6 @@ var __node_modules__colyseus_schema_build_umd = createCommonjsModule(function (m
                 initialValues.forEach(function (v) { return _this.add(v); });
             }
         }
-        SetSchema.prototype.onAdd = function (callback, triggerAll) {
-            if (triggerAll === void 0) { triggerAll = true; }
-            return addCallback((this.$callbacks || (this.$callbacks = [])), exports.OPERATION.ADD, callback, (triggerAll)
-                ? this.$items
-                : undefined);
-        };
-        SetSchema.prototype.onRemove = function (callback) { return addCallback(this.$callbacks || (this.$callbacks = []), exports.OPERATION.DELETE, callback); };
-        SetSchema.prototype.onChange = function (callback) { return addCallback(this.$callbacks || (this.$callbacks = []), exports.OPERATION.REPLACE, callback); };
         SetSchema.is = function (type) {
             return type['set'] !== undefined;
         };
@@ -3090,19 +3096,18 @@ var __node_modules__colyseus_schema_build_umd = createCommonjsModule(function (m
             this.$indexes.delete(index);
             return this.$items.delete(index);
         };
-        SetSchema.prototype.clear = function (changes) {
+        SetSchema.prototype.clear = function (isDecoding) {
+            var _this = this;
             // discard previous operations.
             this.$changes.discard(true, true);
             this.$changes.indexes = {};
             // clear previous indexes
             this.$indexes.clear();
-            //
-            // When decoding:
-            // - enqueue items for DELETE callback.
-            // - flag child items for garbage collection.
-            //
-            if (changes) {
-                removeChildRefs.call(this, changes);
+            // flag child items for garbage collection.
+            if (isDecoding && typeof (this.$changes.getType()) !== "string") {
+                this.$items.forEach(function (item) {
+                    _this.$changes.root.removeRef(item['$changes'].refId);
+                });
             }
             // clear items
             this.$items.clear();
@@ -3188,7 +3193,46 @@ var __node_modules__colyseus_schema_build_umd = createCommonjsModule(function (m
             }
             return cloned;
         };
+        SetSchema.prototype.triggerAll = function () {
+            Schema.prototype.triggerAll.apply(this);
+        };
         return SetSchema;
+    }());
+
+    /**
+     * Extracted from https://www.npmjs.com/package/strong-events
+     */
+    var EventEmitter_ = /** @class */ (function () {
+        function EventEmitter_() {
+            this.handlers = [];
+        }
+        EventEmitter_.prototype.register = function (cb, once) {
+            this.handlers.push(cb);
+            return this;
+        };
+        EventEmitter_.prototype.invoke = function () {
+            var args = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                args[_i] = arguments[_i];
+            }
+            this.handlers.forEach(function (handler) { return handler.apply(void 0, args); });
+        };
+        EventEmitter_.prototype.invokeAsync = function () {
+            var args = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                args[_i] = arguments[_i];
+            }
+            return Promise.all(this.handlers.map(function (handler) { return handler.apply(void 0, args); }));
+        };
+        EventEmitter_.prototype.remove = function (cb) {
+            var index = this.handlers.indexOf(cb);
+            this.handlers[index] = this.handlers[this.handlers.length - 1];
+            this.handlers.pop();
+        };
+        EventEmitter_.prototype.clear = function () {
+            this.handlers = [];
+        };
+        return EventEmitter_;
     }());
 
     var ClientState = /** @class */ (function () {
@@ -3210,78 +3254,6 @@ var __node_modules__colyseus_schema_build_umd = createCommonjsModule(function (m
             return client.$filterState;
         };
         return ClientState;
-    }());
-
-    var ReferenceTracker = /** @class */ (function () {
-        function ReferenceTracker() {
-            //
-            // Relation of refId => Schema structure
-            // For direct access of structures during decoding time.
-            //
-            this.refs = new Map();
-            this.refCounts = {};
-            this.deletedRefs = new Set();
-            this.nextUniqueId = 0;
-        }
-        ReferenceTracker.prototype.getNextUniqueId = function () {
-            return this.nextUniqueId++;
-        };
-        // for decoding
-        ReferenceTracker.prototype.addRef = function (refId, ref, incrementCount) {
-            if (incrementCount === void 0) { incrementCount = true; }
-            this.refs.set(refId, ref);
-            if (incrementCount) {
-                this.refCounts[refId] = (this.refCounts[refId] || 0) + 1;
-            }
-        };
-        // for decoding
-        ReferenceTracker.prototype.removeRef = function (refId) {
-            this.refCounts[refId] = this.refCounts[refId] - 1;
-            this.deletedRefs.add(refId);
-        };
-        ReferenceTracker.prototype.clearRefs = function () {
-            this.refs.clear();
-            this.deletedRefs.clear();
-            this.refCounts = {};
-        };
-        // for decoding
-        ReferenceTracker.prototype.garbageCollectDeletedRefs = function () {
-            var _this = this;
-            this.deletedRefs.forEach(function (refId) {
-                //
-                // Skip active references.
-                //
-                if (_this.refCounts[refId] > 0) {
-                    return;
-                }
-                var ref = _this.refs.get(refId);
-                //
-                // Ensure child schema instances have their references removed as well.
-                //
-                if (ref instanceof Schema) {
-                    for (var fieldName in ref['_definition'].schema) {
-                        if (typeof (ref['_definition'].schema[fieldName]) !== "string" &&
-                            ref[fieldName] &&
-                            ref[fieldName]['$changes']) {
-                            _this.removeRef(ref[fieldName]['$changes'].refId);
-                        }
-                    }
-                }
-                else {
-                    var definition = ref['$changes'].parent._definition;
-                    var type = definition.schema[definition.fieldsByIndex[ref['$changes'].parentIndex]];
-                    if (typeof (Object.values(type)[0]) === "function") {
-                        Array.from(ref.values())
-                            .forEach(function (child) { return _this.removeRef(child['$changes'].refId); });
-                    }
-                }
-                _this.refs.delete(refId);
-                delete _this.refCounts[refId];
-            });
-            // clear deleted refs.
-            this.deletedRefs.clear();
-        };
-        return ReferenceTracker;
     }());
 
     var EncodeSchemaError = /** @class */ (function (_super) {
@@ -3355,17 +3327,12 @@ var __node_modules__colyseus_schema_build_umd = createCommonjsModule(function (m
             // fix enumerability of fields for end-user
             Object.defineProperties(this, {
                 $changes: {
-                    value: new ChangeTree(this, undefined, new ReferenceTracker()),
+                    value: new ChangeTree(this, undefined, new Root()),
                     enumerable: false,
                     writable: true
                 },
-                // $listeners: {
-                //     value: undefined,
-                //     enumerable: false,
-                //     writable: true
-                // },
-                $callbacks: {
-                    value: undefined,
+                $listeners: {
+                    value: {},
                     enumerable: false,
                     writable: true
                 },
@@ -3388,12 +3355,6 @@ var __node_modules__colyseus_schema_build_umd = createCommonjsModule(function (m
             return (type['_definition'] &&
                 type['_definition'].schema !== undefined);
         };
-        Schema.prototype.onChange = function (callback) {
-            return addCallback((this.$callbacks || (this.$callbacks = [])), exports.OPERATION.REPLACE, callback);
-        };
-        Schema.prototype.onRemove = function (callback) {
-            return addCallback((this.$callbacks || (this.$callbacks = [])), exports.OPERATION.DELETE, callback);
-        };
         Schema.prototype.assign = function (props) {
             Object.assign(this, props);
             return this;
@@ -3403,36 +3364,27 @@ var __node_modules__colyseus_schema_build_umd = createCommonjsModule(function (m
             enumerable: false,
             configurable: true
         });
-        /**
-         * (Server-side): Flag a property to be encoded for the next patch.
-         * @param instance Schema instance
-         * @param property string representing the property name, or number representing the index of the property.
-         * @param operation OPERATION to perform (detected automatically)
-         */
-        Schema.prototype.setDirty = function (property, operation) {
-            this.$changes.change(property, operation);
-        };
         Schema.prototype.listen = function (attr, callback) {
             var _this = this;
-            if (!this.$callbacks) {
-                this.$callbacks = {};
+            if (!this.$listeners[attr]) {
+                this.$listeners[attr] = new EventEmitter_();
             }
-            if (!this.$callbacks[attr]) {
-                this.$callbacks[attr] = [];
-            }
-            this.$callbacks[attr].push(callback);
+            this.$listeners[attr].register(callback);
             // return un-register callback.
-            return function () { return spliceOne(_this.$callbacks[attr], _this.$callbacks[attr].indexOf(callback)); };
+            return function () {
+                return _this.$listeners[attr].remove(callback);
+            };
         };
-        Schema.prototype.decode = function (bytes, it, ref) {
-            var _a;
+        Schema.prototype.decode = function (bytes, it, ref, allChanges) {
             if (it === void 0) { it = { offset: 0 }; }
             if (ref === void 0) { ref = this; }
-            var allChanges = [];
+            if (allChanges === void 0) { allChanges = new Map(); }
             var $root = this.$changes.root;
             var totalBytes = bytes.length;
             var refId = 0;
+            var changes = [];
             $root.refs.set(refId, this);
+            allChanges.set(refId, changes);
             while (it.offset < totalBytes) {
                 var byte = bytes[it.offset++];
                 if (byte == SWITCH_TO_STRUCTURE) {
@@ -3445,6 +3397,9 @@ var __node_modules__colyseus_schema_build_umd = createCommonjsModule(function (m
                         throw new Error("\"refId\" not found: ".concat(refId));
                     }
                     ref = nextRef;
+                    // create empty list of changes for this refId.
+                    changes = [];
+                    allChanges.set(refId, changes);
                     continue;
                 }
                 var changeTree = ref['$changes'];
@@ -3458,7 +3413,7 @@ var __node_modules__colyseus_schema_build_umd = createCommonjsModule(function (m
                     // The `.clear()` method is calling `$root.removeRef(refId)` for
                     // each item inside this collection
                     //
-                    ref.clear(allChanges);
+                    ref.clear(true);
                     continue;
                 }
                 var fieldIndex = (isSchema)
@@ -3528,8 +3483,9 @@ var __node_modules__colyseus_schema_build_umd = createCommonjsModule(function (m
                             value = this.createTypeInstance(childType);
                             value.$changes.refId = refId_1;
                             if (previousValue) {
-                                value.$callbacks = previousValue.$callbacks;
-                                // value.$listeners = previousValue.$listeners;
+                                value.onChange = previousValue.onChange;
+                                value.onRemove = previousValue.onRemove;
+                                value.$listeners = previousValue.$listeners;
                                 if (previousValue['$changes'].refId &&
                                     refId_1 !== previousValue['$changes'].refId) {
                                     $root.removeRef(previousValue['$changes'].refId);
@@ -3555,29 +3511,40 @@ var __node_modules__colyseus_schema_build_umd = createCommonjsModule(function (m
                     value.$changes.refId = refId_2;
                     // preserve schema callbacks
                     if (previousValue) {
-                        value['$callbacks'] = previousValue['$callbacks'];
+                        value.onAdd = previousValue.onAdd;
+                        value.onRemove = previousValue.onRemove;
+                        value.onChange = previousValue.onChange;
                         if (previousValue['$changes'].refId &&
                             refId_2 !== previousValue['$changes'].refId) {
                             $root.removeRef(previousValue['$changes'].refId);
                             //
                             // Trigger onRemove if structure has been replaced.
                             //
+                            var deletes = [];
                             var entries = previousValue.entries();
                             var iter = void 0;
                             while ((iter = entries.next()) && !iter.done) {
-                                var key = (_a = iter.value, _a[0]), value_1 = _a[1];
-                                allChanges.push({
-                                    refId: refId_2,
+                                var _a = iter.value, key = _a[0], value_1 = _a[1];
+                                deletes.push({
                                     op: exports.OPERATION.DELETE,
                                     field: key,
                                     value: undefined,
                                     previousValue: value_1,
                                 });
                             }
+                            allChanges.set(previousValue['$changes'].refId, deletes);
                         }
                     }
                     $root.addRef(refId_2, value, (valueRef !== previousValue));
+                    //
+                    // TODO: deprecate proxies on next version.
+                    // get proxy to target value.
+                    //
+                    if (typeDef.getProxy) {
+                        value = typeDef.getProxy(value);
+                    }
                 }
+                var hasChange = (previousValue !== value);
                 if (value !== null &&
                     value !== undefined) {
                     if (value['$changes']) {
@@ -3585,7 +3552,14 @@ var __node_modules__colyseus_schema_build_umd = createCommonjsModule(function (m
                     }
                     if (ref instanceof Schema) {
                         ref[fieldName] = value;
-                        // ref[`_${fieldName}`] = value;
+                        //
+                        // FIXME: use `_field` instead of `field`.
+                        //
+                        // `field` is going to use the setter of the PropertyDescriptor
+                        // and create a proxy for array/map. This is only useful for
+                        // backwards-compatibility with @colyseus/schema@0.5.x
+                        //
+                        // // ref[_field] = value;
                     }
                     else if (ref instanceof MapSchema) {
                         // const key = ref['$indexes'].get(field);
@@ -3611,9 +3585,13 @@ var __node_modules__colyseus_schema_build_umd = createCommonjsModule(function (m
                         }
                     }
                 }
-                if (previousValue !== value) {
-                    allChanges.push({
-                        refId: refId,
+                if (hasChange
+                // &&
+                // (
+                //     this.onChange || ref.$listeners[field]
+                // )
+                ) {
+                    changes.push({
                         op: operation,
                         field: fieldName,
                         dynamicIndex: dynamicIndex,
@@ -3963,6 +3941,20 @@ var __node_modules__colyseus_schema_build_umd = createCommonjsModule(function (m
             }
             return cloned;
         };
+        Schema.prototype.triggerAll = function () {
+            // skip if haven't received any remote refs yet.
+            if (this.$changes.root.refs.size === 0) {
+                return;
+            }
+            var allChanges = new Map();
+            Schema.prototype._triggerAllFillChanges.call(this, this, allChanges);
+            try {
+                Schema.prototype._triggerChanges.call(this, allChanges);
+            }
+            catch (e) {
+                Schema.onError(e);
+            }
+        };
         Schema.prototype.toJSON = function () {
             var schema = this._definition.schema;
             var deprecated = this._definition.deprecated;
@@ -4005,83 +3997,111 @@ var __node_modules__colyseus_schema_build_umd = createCommonjsModule(function (m
             instance.$changes.root = this.$changes.root;
             return instance;
         };
-        Schema.prototype._triggerChanges = function (changes) {
-            var _a, _b, _c, _d, _e, _f, _g, _h, _j;
-            var uniqueRefIds = new Set();
-            var $refs = this.$changes.root.refs;
-            var _loop_2 = function (i) {
-                var change = changes[i];
-                var refId = change.refId;
-                var ref = $refs.get(refId);
-                var $callbacks = ref['$callbacks'];
-                //
-                // trigger onRemove on child structure.
-                //
-                if ((change.op & exports.OPERATION.DELETE) === exports.OPERATION.DELETE &&
-                    change.previousValue instanceof Schema) {
-                    (_b = (_a = change.previousValue['$callbacks']) === null || _a === void 0 ? void 0 : _a[exports.OPERATION.DELETE]) === null || _b === void 0 ? void 0 : _b.forEach(function (callback) { return callback(); });
-                }
-                // no callbacks defined, skip this structure!
-                if (!$callbacks) {
-                    return "continue";
-                }
-                if (ref instanceof Schema) {
-                    if (!uniqueRefIds.has(refId)) {
-                        try {
-                            // trigger onChange
-                            (_c = $callbacks === null || $callbacks === void 0 ? void 0 : $callbacks[exports.OPERATION.REPLACE]) === null || _c === void 0 ? void 0 : _c.forEach(function (callback) {
-                                return callback(changes);
-                            });
-                        }
-                        catch (e) {
-                            Schema.onError(e);
-                        }
-                    }
-                    try {
-                        if ($callbacks.hasOwnProperty(change.field)) {
-                            (_d = $callbacks[change.field]) === null || _d === void 0 ? void 0 : _d.forEach(function (callback) {
-                                return callback(change.value, change.previousValue);
-                            });
-                        }
-                    }
-                    catch (e) {
-                        Schema.onError(e);
-                    }
-                }
-                else {
-                    // is a collection of items
-                    if (change.op === exports.OPERATION.ADD && change.previousValue === undefined) {
-                        // triger onAdd
-                        (_e = $callbacks[exports.OPERATION.ADD]) === null || _e === void 0 ? void 0 : _e.forEach(function (callback) { var _a; return callback(change.value, (_a = change.dynamicIndex) !== null && _a !== void 0 ? _a : change.field); });
-                    }
-                    else if (change.op === exports.OPERATION.DELETE) {
-                        //
-                        // FIXME: `previousValue` should always be available.
-                        // ADD + DELETE operations are still encoding DELETE operation.
-                        //
-                        if (change.previousValue !== undefined) {
-                            // triger onRemove
-                            (_f = $callbacks[exports.OPERATION.DELETE]) === null || _f === void 0 ? void 0 : _f.forEach(function (callback) { var _a; return callback(change.previousValue, (_a = change.dynamicIndex) !== null && _a !== void 0 ? _a : change.field); });
-                        }
-                    }
-                    else if (change.op === exports.OPERATION.DELETE_AND_ADD) {
-                        // triger onRemove
-                        if (change.previousValue !== undefined) {
-                            (_g = $callbacks[exports.OPERATION.DELETE]) === null || _g === void 0 ? void 0 : _g.forEach(function (callback) { var _a; return callback(change.previousValue, (_a = change.dynamicIndex) !== null && _a !== void 0 ? _a : change.field); });
-                        }
-                        // triger onAdd
-                        (_h = $callbacks[exports.OPERATION.ADD]) === null || _h === void 0 ? void 0 : _h.forEach(function (callback) { var _a; return callback(change.value, (_a = change.dynamicIndex) !== null && _a !== void 0 ? _a : change.field); });
-                    }
-                    // trigger onChange
-                    if (change.value !== change.previousValue) {
-                        (_j = $callbacks[exports.OPERATION.REPLACE]) === null || _j === void 0 ? void 0 : _j.forEach(function (callback) { var _a; return callback(change.value, (_a = change.dynamicIndex) !== null && _a !== void 0 ? _a : change.field); });
-                    }
-                }
-                uniqueRefIds.add(refId);
-            };
-            for (var i = 0; i < changes.length; i++) {
-                _loop_2(i);
+        Schema.prototype._triggerAllFillChanges = function (ref, allChanges) {
+            if (allChanges.has(ref['$changes'].refId)) {
+                return;
             }
+            var changes = [];
+            allChanges.set(ref['$changes'].refId || 0, changes);
+            if (ref instanceof Schema) {
+                var schema = ref._definition.schema;
+                for (var fieldName in schema) {
+                    var _field = "_".concat(fieldName);
+                    var value = ref[_field];
+                    if (value !== undefined) {
+                        changes.push({
+                            op: exports.OPERATION.ADD,
+                            field: fieldName,
+                            value: value,
+                            previousValue: undefined
+                        });
+                        if (value['$changes'] !== undefined) {
+                            Schema.prototype._triggerAllFillChanges.call(this, value, allChanges);
+                        }
+                    }
+                }
+            }
+            else {
+                var entries = ref.entries();
+                var iter = void 0;
+                while ((iter = entries.next()) && !iter.done) {
+                    var _a = iter.value, key = _a[0], value = _a[1];
+                    changes.push({
+                        op: exports.OPERATION.ADD,
+                        field: key,
+                        dynamicIndex: key,
+                        value: value,
+                        previousValue: undefined,
+                    });
+                    if (value['$changes'] !== undefined) {
+                        Schema.prototype._triggerAllFillChanges.call(this, value, allChanges);
+                    }
+                }
+            }
+        };
+        Schema.prototype._triggerChanges = function (allChanges) {
+            var _this = this;
+            allChanges.forEach(function (changes, refId) {
+                var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
+                if (changes.length > 0) {
+                    var ref = _this.$changes.root.refs.get(refId);
+                    var isSchema = ref instanceof Schema;
+                    for (var i = 0; i < changes.length; i++) {
+                        var change = changes[i];
+                        var listener = ref['$listeners'] && ref['$listeners'][change.field];
+                        if (!isSchema) {
+                            if (change.op === exports.OPERATION.ADD && change.previousValue === undefined) {
+                                (_b = (_a = ref).onAdd) === null || _b === void 0 ? void 0 : _b.call(_a, change.value, (_c = change.dynamicIndex) !== null && _c !== void 0 ? _c : change.field);
+                            }
+                            else if (change.op === exports.OPERATION.DELETE) {
+                                //
+                                // FIXME: `previousValue` should always be avaiiable.
+                                // ADD + DELETE operations are still encoding DELETE operation.
+                                //
+                                if (change.previousValue !== undefined) {
+                                    (_e = (_d = ref).onRemove) === null || _e === void 0 ? void 0 : _e.call(_d, change.previousValue, (_f = change.dynamicIndex) !== null && _f !== void 0 ? _f : change.field);
+                                }
+                            }
+                            else if (change.op === exports.OPERATION.DELETE_AND_ADD) {
+                                if (change.previousValue !== undefined) {
+                                    (_h = (_g = ref).onRemove) === null || _h === void 0 ? void 0 : _h.call(_g, change.previousValue, change.dynamicIndex);
+                                }
+                                (_k = (_j = ref).onAdd) === null || _k === void 0 ? void 0 : _k.call(_j, change.value, change.dynamicIndex);
+                            }
+                            else if (change.op === exports.OPERATION.REPLACE ||
+                                change.value !== change.previousValue) {
+                                (_m = (_l = ref).onChange) === null || _m === void 0 ? void 0 : _m.call(_l, change.value, change.dynamicIndex);
+                            }
+                        }
+                        //
+                        // trigger onRemove on child structure.
+                        //
+                        if ((change.op & exports.OPERATION.DELETE) === exports.OPERATION.DELETE &&
+                            change.previousValue instanceof Schema &&
+                            change.previousValue.onRemove) {
+                            change.previousValue.onRemove();
+                        }
+                        if (listener) {
+                            try {
+                                listener.invoke(change.value, change.previousValue);
+                            }
+                            catch (e) {
+                                Schema.onError(e);
+                            }
+                        }
+                    }
+                    if (isSchema) {
+                        if (ref.onChange) {
+                            try {
+                                ref.onChange(changes);
+                            }
+                            catch (e) {
+                                Schema.onError(e);
+                            }
+                        }
+                    }
+                }
+            });
         };
         Schema._definition = SchemaDefinition.create();
         return Schema;
@@ -4109,7 +4129,7 @@ var __node_modules__colyseus_schema_build_umd = createCommonjsModule(function (m
         return dump;
     }
 
-    var reflectionContext = { context: new Context() };
+    var reflectionContext = new Context();
     /**
      * Reflection
      */
@@ -4230,14 +4250,14 @@ var __node_modules__colyseus_schema_build_umd = createCommonjsModule(function (m
                             refType = typeInfo[1];
                         }
                         if (fieldType === "ref") {
-                            type(refType, { context: context })(schemaType.prototype, field.name);
+                            type(refType, context)(schemaType.prototype, field.name);
                         }
                         else {
-                            type((_a = {}, _a[fieldType] = refType, _a), { context: context })(schemaType.prototype, field.name);
+                            type((_a = {}, _a[fieldType] = refType, _a), context)(schemaType.prototype, field.name);
                         }
                     }
                     else {
-                        type(field.type, { context: context })(schemaType.prototype, field.name);
+                        type(field.type, context)(schemaType.prototype, field.name);
                     }
                 });
             });
@@ -4266,8 +4286,8 @@ var __node_modules__colyseus_schema_build_umd = createCommonjsModule(function (m
         return Reflection;
     }(Schema));
 
-    registerType("map", { constructor: MapSchema });
-    registerType("array", { constructor: ArraySchema });
+    registerType("map", { constructor: MapSchema, getProxy: getMapProxy });
+    registerType("array", { constructor: ArraySchema, getProxy: getArrayProxy });
     registerType("set", { constructor: SetSchema });
     registerType("collection", { constructor: CollectionSchema, });
 
@@ -4297,24 +4317,16 @@ var __node_modules__colyseus_schema_build_umd = createCommonjsModule(function (m
 }));
 });
 
-class Room {
-    roomId;
-    sessionId;
-    reconnectionToken;
-    name;
-    connection;
-    // Public signals
-    onStateChange = createSignal();
-    onError = createSignal();
-    onLeave = createSignal();
-    onJoin = createSignal();
-    serializerId;
-    serializer;
-    hasJoined = false;
-    // TODO: remove me on 1.0.0
-    rootSchema;
-    onMessageHandlers = createNanoEvents();
-    constructor(name, rootSchema) {
+var Room = /** @class */ (function () {
+    function Room(name, rootSchema) {
+        var _this = this;
+        // Public signals
+        this.onStateChange = createSignal();
+        this.onError = createSignal();
+        this.onLeave = createSignal();
+        this.onJoin = createSignal();
+        this.hasJoined = false;
+        this.onMessageHandlers = createNanoEvents();
         this.roomId = null;
         this.name = name;
         if (rootSchema) {
@@ -4322,66 +4334,66 @@ class Room {
             this.rootSchema = rootSchema;
             this.serializer.state = new rootSchema();
         }
-        this.onError((code, message) => console.warn(`colyseus.js - onError => (${code}) ${message}`));
-        this.onLeave(() => this.removeAllListeners());
+        this.onError(function (code, message) { return console.warn("colyseus.js - onError => (".concat(code, ") ").concat(message)); });
+        this.onLeave(function () { return _this.removeAllListeners(); });
     }
-    // TODO: deprecate me on version 1.0
-    get id() { return this.roomId; }
-    connect(endpoint, devModeCloseCallback, room = this // when reconnecting on devMode, re-use previous room intance for handling events.
-    ) {
-        const connection = new Connection();
-        room.connection = connection;
-        connection.events.onmessage = Room.prototype.onMessageCallback.bind(room);
-        connection.events.onclose = function (e) {
-            if (!room.hasJoined) {
-                console.warn(`Room connection was closed unexpectedly (${e.code}): ${e.reason}`);
-                room.onError.invoke(e.code, e.reason);
+    Object.defineProperty(Room.prototype, "id", {
+        // TODO: deprecate me on version 1.0
+        get: function () { return this.roomId; },
+        enumerable: false,
+        configurable: true
+    });
+    Room.prototype.connect = function (endpoint) {
+        var _this = this;
+        this.connection = new Connection();
+        this.connection.events.onmessage = this.onMessageCallback.bind(this);
+        this.connection.events.onclose = function (e) {
+            if (!_this.hasJoined) {
+                console.warn("Room connection was closed unexpectedly (".concat(e.code, "): ").concat(e.reason));
+                _this.onError.invoke(e.code, e.reason);
                 return;
             }
-            if (e.code === CloseCode.DEVMODE_RESTART && devModeCloseCallback) {
-                devModeCloseCallback();
-            }
-            else {
-                room.onLeave.invoke(e.code);
-                room.destroy();
-            }
+            _this.onLeave.invoke(e.code);
+            _this.destroy();
         };
-        connection.events.onerror = function (e) {
-            console.warn(`Room, onError (${e.code}): ${e.reason}`);
-            room.onError.invoke(e.code, e.reason);
+        this.connection.events.onerror = function (e) {
+            console.warn("Room, onError (".concat(e.code, "): ").concat(e.reason));
+            _this.onError.invoke(e.code, e.reason);
         };
-        connection.connect(endpoint);
-    }
-    leave(consented = true) {
-        return new Promise((resolve) => {
-            this.onLeave((code) => resolve(code));
-            if (this.connection) {
+        this.connection.connect(endpoint);
+    };
+    Room.prototype.leave = function (consented) {
+        var _this = this;
+        if (consented === void 0) { consented = true; }
+        return new Promise(function (resolve) {
+            _this.onLeave(function (code) { return resolve(code); });
+            if (_this.connection) {
                 if (consented) {
-                    this.connection.send([Protocol.LEAVE_ROOM]);
+                    _this.connection.send([Protocol.LEAVE_ROOM]);
                 }
                 else {
-                    this.connection.close();
+                    _this.connection.close();
                 }
             }
             else {
-                this.onLeave.invoke(CloseCode.CONSENTED);
+                _this.onLeave.invoke(4000); // "consented" code
             }
         });
-    }
-    onMessage(type, callback) {
+    };
+    Room.prototype.onMessage = function (type, callback) {
         return this.onMessageHandlers.on(this.getMessageHandlerKey(type), callback);
-    }
-    send(type, message) {
-        const initialBytes = [Protocol.ROOM_DATA];
+    };
+    Room.prototype.send = function (type, message) {
+        var initialBytes = [Protocol.ROOM_DATA];
         if (typeof (type) === "string") {
-            __node_modules__colyseus_schema_build_umd.encode.string(initialBytes, type);
+            umd.encode.string(initialBytes, type);
         }
         else {
-            __node_modules__colyseus_schema_build_umd.encode.number(initialBytes, type);
+            umd.encode.number(initialBytes, type);
         }
-        let arr;
+        var arr;
         if (message !== undefined) {
-            const encoded = encode(message);
+            var encoded = encode(message);
             arr = new Uint8Array(initialBytes.length + encoded.byteLength);
             arr.set(new Uint8Array(initialBytes), 0);
             arr.set(new Uint8Array(encoded), initialBytes.length);
@@ -4390,69 +4402,56 @@ class Room {
             arr = new Uint8Array(initialBytes);
         }
         this.connection.send(arr.buffer);
-    }
-    sendBytes(type, bytes) {
-        const initialBytes = [Protocol.ROOM_DATA_BYTES];
-        if (typeof (type) === "string") {
-            __node_modules__colyseus_schema_build_umd.encode.string(initialBytes, type);
-        }
-        else {
-            __node_modules__colyseus_schema_build_umd.encode.number(initialBytes, type);
-        }
-        let arr;
-        arr = new Uint8Array(initialBytes.length + (bytes.byteLength || bytes.length));
-        arr.set(new Uint8Array(initialBytes), 0);
-        arr.set(new Uint8Array(bytes), initialBytes.length);
-        this.connection.send(arr.buffer);
-    }
-    get state() {
-        return this.serializer.getState();
-    }
-    removeAllListeners() {
+    };
+    Object.defineProperty(Room.prototype, "state", {
+        get: function () {
+            return this.serializer.getState();
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Room.prototype.removeAllListeners = function () {
         this.onJoin.clear();
         this.onStateChange.clear();
         this.onError.clear();
         this.onLeave.clear();
         this.onMessageHandlers.events = {};
-    }
-    onMessageCallback(event) {
-        const bytes = Array.from(new Uint8Array(event.data));
-        const code = bytes[0];
+    };
+    Room.prototype.onMessageCallback = function (event) {
+        var bytes = Array.from(new Uint8Array(event.data));
+        var code = bytes[0];
         if (code === Protocol.JOIN_ROOM) {
-            let offset = 1;
-            const reconnectionToken = utf8Read(bytes, offset);
-            offset += utf8Length(reconnectionToken);
+            var offset = 1;
             this.serializerId = utf8Read(bytes, offset);
             offset += utf8Length(this.serializerId);
             // Instantiate serializer if not locally available.
             if (!this.serializer) {
-                const serializer = getSerializer(this.serializerId);
+                var serializer = getSerializer(this.serializerId);
                 this.serializer = new serializer();
             }
             if (bytes.length > offset && this.serializer.handshake) {
-                this.serializer.handshake(bytes, { offset });
+                this.serializer.handshake(bytes, { offset: offset });
             }
-            this.reconnectionToken = `${this.roomId}:${reconnectionToken}`;
             this.hasJoined = true;
             this.onJoin.invoke();
             // acknowledge successfull JOIN_ROOM
             this.connection.send([Protocol.JOIN_ROOM]);
         }
         else if (code === Protocol.ERROR) {
-            const it = { offset: 1 };
-            const code = __node_modules__colyseus_schema_build_umd.decode.number(bytes, it);
-            const message = __node_modules__colyseus_schema_build_umd.decode.string(bytes, it);
-            this.onError.invoke(code, message);
+            var it_1 = { offset: 1 };
+            var code_1 = umd.decode.number(bytes, it_1);
+            var message = umd.decode.string(bytes, it_1);
+            this.onError.invoke(code_1, message);
         }
         else if (code === Protocol.LEAVE_ROOM) {
             this.leave();
         }
         else if (code === Protocol.ROOM_DATA_SCHEMA) {
-            const it = { offset: 1 };
-            const context = this.serializer.getState().constructor._context;
-            const type = context.get(__node_modules__colyseus_schema_build_umd.decode.number(bytes, it));
-            const message = new type();
-            message.decode(bytes, it);
+            var it_2 = { offset: 1 };
+            var context_1 = this.serializer.getState().constructor._context;
+            var type = context_1.get(umd.decode.number(bytes, it_2));
+            var message = new type();
+            message.decode(bytes, it_2);
             this.dispatchMessage(type, message);
         }
         else if (code === Protocol.ROOM_STATE) {
@@ -4464,33 +4463,26 @@ class Room {
             this.patch(bytes);
         }
         else if (code === Protocol.ROOM_DATA) {
-            const it = { offset: 1 };
-            const type = (__node_modules__colyseus_schema_build_umd.decode.stringCheck(bytes, it))
-                ? __node_modules__colyseus_schema_build_umd.decode.string(bytes, it)
-                : __node_modules__colyseus_schema_build_umd.decode.number(bytes, it);
-            const message = (bytes.length > it.offset)
-                ? decode(event.data, it.offset)
+            var it_3 = { offset: 1 };
+            var type = (umd.decode.stringCheck(bytes, it_3))
+                ? umd.decode.string(bytes, it_3)
+                : umd.decode.number(bytes, it_3);
+            var message = (bytes.length > it_3.offset)
+                ? decode(event.data, it_3.offset)
                 : undefined;
             this.dispatchMessage(type, message);
         }
-        else if (code === Protocol.ROOM_DATA_BYTES) {
-            const it = { offset: 1 };
-            const type = (__node_modules__colyseus_schema_build_umd.decode.stringCheck(bytes, it))
-                ? __node_modules__colyseus_schema_build_umd.decode.string(bytes, it)
-                : __node_modules__colyseus_schema_build_umd.decode.number(bytes, it);
-            this.dispatchMessage(type, new Uint8Array(bytes.slice(it.offset)));
-        }
-    }
-    setState(encodedState) {
+    };
+    Room.prototype.setState = function (encodedState) {
         this.serializer.setState(encodedState);
         this.onStateChange.invoke(this.serializer.getState());
-    }
-    patch(binaryPatch) {
+    };
+    Room.prototype.patch = function (binaryPatch) {
         this.serializer.patch(binaryPatch);
         this.onStateChange.invoke(this.serializer.getState());
-    }
-    dispatchMessage(type, message) {
-        const messageType = this.getMessageHandlerKey(type);
+    };
+    Room.prototype.dispatchMessage = function (type, message) {
+        var messageType = this.getMessageHandlerKey(type);
         if (this.onMessageHandlers.events[messageType]) {
             this.onMessageHandlers.emit(messageType, message);
         }
@@ -4498,193 +4490,27 @@ class Room {
             this.onMessageHandlers.emit('*', type, message);
         }
         else {
-            console.warn(`colyseus.js: onMessage() not registered for type '${type}'.`);
+            console.warn("colyseus.js: onMessage() not registered for type '".concat(type, "'."));
         }
-    }
-    destroy() {
+    };
+    Room.prototype.destroy = function () {
         if (this.serializer) {
             this.serializer.teardown();
         }
-    }
-    getMessageHandlerKey(type) {
+    };
+    Room.prototype.getMessageHandlerKey = function (type) {
         switch (typeof (type)) {
             // typeof Schema
-            case "function": return `$${type._typeid}`;
+            case "function": return "$".concat(type._typeid);
             // string
             case "string": return type;
             // number
-            case "number": return `i${type}`;
+            case "number": return "i".concat(type);
             default: throw new Error("invalid message type.");
         }
-    }
-}
-
-class MatchMakeError extends Error {
-    code;
-    constructor(message, code) {
-        super(message);
-        this.code = code;
-        Object.setPrototypeOf(this, MatchMakeError.prototype);
-    }
-}
-// - React Native does not provide `window.location`
-// - Cocos Creator (Native) does not provide `window.location.hostname`
-const DEFAULT_ENDPOINT = (typeof (window) !== "undefined" && typeof (window?.location?.hostname) !== "undefined")
-    ? `${window.location.protocol.replace("http", "ws")}//${window.location.hostname}${(window.location.port && `:${window.location.port}`)}`
-    : "ws://127.0.0.1:2567";
-class Client {
-    settings;
-    constructor(settings = DEFAULT_ENDPOINT) {
-        if (typeof (settings) === "string") {
-            //
-            // endpoint by url
-            //
-            const url = new URL(settings);
-            const secure = (url.protocol === "https:" || url.protocol === "wss:");
-            const port = Number(url.port || (secure ? 443 : 80));
-            this.settings = {
-                hostname: url.hostname,
-                pathname: url.pathname !== "/" ? url.pathname : "",
-                port,
-                secure
-            };
-        }
-        else {
-            //
-            // endpoint by settings
-            //
-            if (settings.port === undefined) {
-                settings.port = (settings.secure) ? 443 : 80;
-            }
-            if (settings.pathname === undefined) {
-                settings.pathname = "";
-            }
-            this.settings = settings;
-        }
-    }
-    async joinOrCreate(roomName, options = {}, rootSchema) {
-        return await this.createMatchMakeRequest('joinOrCreate', roomName, options, rootSchema);
-    }
-    async create(roomName, options = {}, rootSchema) {
-        return await this.createMatchMakeRequest('create', roomName, options, rootSchema);
-    }
-    async join(roomName, options = {}, rootSchema) {
-        return await this.createMatchMakeRequest('join', roomName, options, rootSchema);
-    }
-    async joinById(roomId, options = {}, rootSchema) {
-        return await this.createMatchMakeRequest('joinById', roomId, options, rootSchema);
-    }
-    /**
-     * Re-establish connection with a room this client was previously connected to.
-     *
-     * @param reconnectionToken The `room.reconnectionToken` from previously connected room.
-     * @param rootSchema (optional) Concrete root schema definition
-     * @returns Promise<Room>
-     */
-    async reconnect(reconnectionToken, rootSchema) {
-        if (typeof (reconnectionToken) === "string" && typeof (rootSchema) === "string") {
-            throw new Error("DEPRECATED: .reconnect() now only accepts 'reconnectionToken' as argument.\nYou can get this token from previously connected `room.reconnectionToken`");
-        }
-        const [roomId, token] = reconnectionToken.split(":");
-        return await this.createMatchMakeRequest('reconnect', roomId, { reconnectionToken: token }, rootSchema);
-    }
-    async getAvailableRooms(roomName = "") {
-        return (await get_1(this.getHttpEndpoint(`${roomName}`), {
-            headers: {
-                'Accept': 'application/json'
-            }
-        })).data;
-    }
-    async consumeSeatReservation(response, rootSchema, previousRoom // used in devMode
-    ) {
-        const room = this.createRoom(response.room.name, rootSchema);
-        room.roomId = response.room.roomId;
-        room.sessionId = response.sessionId;
-        const options = { sessionId: room.sessionId };
-        // forward "reconnection token" in case of reconnection.
-        if (response.reconnectionToken) {
-            options.reconnectionToken = response.reconnectionToken;
-        }
-        const targetRoom = previousRoom || room;
-        room.connect(this.buildEndpoint(response.room, options), response.devMode && (async () => {
-            console.info(`[Colyseus devMode]: ${String.fromCodePoint(0x1F504)} Re-establishing connection with room id '${room.roomId}'...`); // 🔄
-            let retryCount = 0;
-            let retryMaxRetries = 8;
-            const retryReconnection = async () => {
-                retryCount++;
-                try {
-                    await this.consumeSeatReservation(response, rootSchema, targetRoom);
-                    console.info(`[Colyseus devMode]: ${String.fromCodePoint(0x2705)} Successfully re-established connection with room '${room.roomId}'`); // ✅
-                }
-                catch (e) {
-                    if (retryCount < retryMaxRetries) {
-                        console.info(`[Colyseus devMode]: ${String.fromCodePoint(0x1F504)} retrying... (${retryCount} out of ${retryMaxRetries})`); // 🔄
-                        setTimeout(retryReconnection, 2000);
-                    }
-                    else {
-                        console.info(`[Colyseus devMode]: ${String.fromCodePoint(0x274C)} Failed to reconnect. Is your server running? Please check server logs.`); // ❌
-                    }
-                }
-            };
-            setTimeout(retryReconnection, 2000);
-        }), targetRoom);
-        return new Promise((resolve, reject) => {
-            const onError = (code, message) => reject(new ServerError(code, message));
-            targetRoom.onError.once(onError);
-            targetRoom['onJoin'].once(() => {
-                targetRoom.onError.remove(onError);
-                resolve(targetRoom);
-            });
-        });
-    }
-    async createMatchMakeRequest(method, roomName, options = {}, rootSchema) {
-        const response = (await post_1(this.getHttpEndpoint(`${method}/${roomName}`), {
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(options)
-        })).data;
-        if (response.error) {
-            throw new MatchMakeError(response.error, response.code);
-        }
-        // forward reconnection token during "reconnect" methods.
-        if (method === "reconnect") {
-            response.reconnectionToken = options.reconnectionToken;
-        }
-        return await this.consumeSeatReservation(response, rootSchema);
-    }
-    createRoom(roomName, rootSchema) {
-        return new Room(roomName, rootSchema);
-    }
-    buildEndpoint(room, options = {}) {
-        const params = [];
-        for (const name in options) {
-            if (!options.hasOwnProperty(name)) {
-                continue;
-            }
-            params.push(`${name}=${options[name]}`);
-        }
-        let endpoint = (this.settings.secure)
-            ? "wss://"
-            : "ws://";
-        if (room.publicAddress) {
-            endpoint += `${room.publicAddress}`;
-        }
-        else {
-            endpoint += `${this.settings.hostname}${this.getEndpointPort()}${this.settings.pathname}`;
-        }
-        return `${endpoint}/${room.processId}/${room.roomId}?${params.join('&')}`;
-    }
-    getHttpEndpoint(segments = '') {
-        return `${(this.settings.secure) ? "https" : "http"}://${this.settings.hostname}${this.getEndpointPort()}${this.settings.pathname}/matchmake/${segments}`;
-    }
-    getEndpointPort() {
-        return (this.settings.port !== 80 && this.settings.port !== 443)
-            ? `:${this.settings.port}`
-            : "";
-    }
-}
+    };
+    return Room;
+}());
 
 /// <reference path="../typings/cocos-creator.d.ts" />
 /**
@@ -4692,7 +4518,7 @@ class Client {
  * Native compatibility. window.localStorage is not present when this module is
  * loaded.
  */
-let storage;
+var storage;
 function getStorage() {
     if (!storage) {
         storage = (typeof (cc) !== 'undefined' && cc.sys && cc.sys.localStorage)
@@ -4715,7 +4541,7 @@ function removeItem(key) {
     getStorage().removeItem(key);
 }
 function getItem(key, callback) {
-    const value = getStorage().getItem(key);
+    var value = getStorage().getItem(key);
     if (typeof (Promise) === 'undefined' || // old browsers
         !(value instanceof Promise)) {
         // browser has synchronous return
@@ -4723,166 +4549,428 @@ function getItem(key, callback) {
     }
     else {
         // react-native is asynchronous
-        value.then((id) => callback(id));
+        value.then(function (id) { return callback(id); });
     }
 }
 
-const TOKEN_STORAGE = "colyseus-auth-token";
+var TOKEN_STORAGE = "colyseus-auth-token";
 var Platform;
 (function (Platform) {
     Platform["ios"] = "ios";
     Platform["android"] = "android";
 })(Platform || (Platform = {}));
-class Auth {
-    _id = undefined;
-    username = undefined;
-    displayName = undefined;
-    avatarUrl = undefined;
-    isAnonymous = undefined;
-    email = undefined;
-    lang = undefined;
-    location = undefined;
-    timezone = undefined;
-    metadata = undefined;
-    devices = undefined;
-    facebookId = undefined;
-    twitterId = undefined;
-    googleId = undefined;
-    gameCenterId = undefined;
-    steamId = undefined;
-    friendIds = undefined;
-    blockedUserIds = undefined;
-    createdAt = undefined;
-    updatedAt = undefined;
-    // auth token
-    token = undefined;
-    endpoint;
-    keepOnlineInterval;
-    constructor(endpoint) {
+var Auth = /** @class */ (function () {
+    function Auth(endpoint) {
+        var _this = this;
+        this._id = undefined;
+        this.username = undefined;
+        this.displayName = undefined;
+        this.avatarUrl = undefined;
+        this.isAnonymous = undefined;
+        this.email = undefined;
+        this.lang = undefined;
+        this.location = undefined;
+        this.timezone = undefined;
+        this.metadata = undefined;
+        this.devices = undefined;
+        this.facebookId = undefined;
+        this.twitterId = undefined;
+        this.googleId = undefined;
+        this.gameCenterId = undefined;
+        this.steamId = undefined;
+        this.friendIds = undefined;
+        this.blockedUserIds = undefined;
+        this.createdAt = undefined;
+        this.updatedAt = undefined;
+        // auth token
+        this.token = undefined;
         this.endpoint = endpoint.replace("ws", "http");
-        getItem(TOKEN_STORAGE, (token) => this.token = token);
+        getItem(TOKEN_STORAGE, function (token) { return _this.token = token; });
     }
-    get hasToken() {
-        return !!this.token;
-    }
-    async login(options = {}) {
-        const queryParams = Object.assign({}, options);
-        if (this.hasToken) {
-            queryParams.token = this.token;
-        }
-        const data = await this.request('post', '/auth', queryParams);
-        // set & cache token
-        this.token = data.token;
-        setItem(TOKEN_STORAGE, this.token);
-        for (let attr in data) {
-            if (this.hasOwnProperty(attr)) {
-                this[attr] = data[attr];
-            }
-        }
-        this.registerPingService();
-        return this;
-    }
-    async save() {
-        await this.request('put', '/auth', {}, {
-            username: this.username,
-            displayName: this.displayName,
-            avatarUrl: this.avatarUrl,
-            lang: this.lang,
-            location: this.location,
-            timezone: this.timezone,
+    Object.defineProperty(Auth.prototype, "hasToken", {
+        get: function () {
+            return !!this.token;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Auth.prototype.login = function (options) {
+        if (options === void 0) { options = {}; }
+        return __awaiter(this, void 0, void 0, function () {
+            var queryParams, data, attr;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        queryParams = Object.assign({}, options);
+                        if (this.hasToken) {
+                            queryParams.token = this.token;
+                        }
+                        return [4 /*yield*/, this.request('post', '/auth', queryParams)];
+                    case 1:
+                        data = _a.sent();
+                        // set & cache token
+                        this.token = data.token;
+                        setItem(TOKEN_STORAGE, this.token);
+                        for (attr in data) {
+                            if (this.hasOwnProperty(attr)) {
+                                this[attr] = data[attr];
+                            }
+                        }
+                        this.registerPingService();
+                        return [2 /*return*/, this];
+                }
+            });
         });
-        return this;
-    }
-    async getFriends() {
-        return (await this.request('get', '/friends/all'));
-    }
-    async getOnlineFriends() {
-        return (await this.request('get', '/friends/online'));
-    }
-    async getFriendRequests() {
-        return (await this.request('get', '/friends/requests'));
-    }
-    async sendFriendRequest(friendId) {
-        return (await this.request('post', '/friends/requests', { userId: friendId }));
-    }
-    async acceptFriendRequest(friendId) {
-        return (await this.request('put', '/friends/requests', { userId: friendId }));
-    }
-    async declineFriendRequest(friendId) {
-        return (await this.request('del', '/friends/requests', { userId: friendId }));
-    }
-    async blockUser(friendId) {
-        return (await this.request('post', '/friends/block', { userId: friendId }));
-    }
-    async unblockUser(friendId) {
-        return (await this.request('put', '/friends/block', { userId: friendId }));
-    }
-    async request(method, segments, query = {}, body, headers = {}) {
-        headers['Accept'] = 'application/json';
-        if (this.hasToken) {
-            headers['Authorization'] = 'Bearer ' + this.token;
-        }
-        const queryParams = [];
-        for (const name in query) {
-            queryParams.push(`${name}=${query[name]}`);
-        }
-        const queryString = (queryParams.length > 0)
-            ? `?${queryParams.join("&")}`
-            : '';
-        const opts = { headers };
-        if (body) {
-            opts.body = body;
-        }
-        return (await http[method](`${this.endpoint}${segments}${queryString}`, opts)).data;
-    }
-    logout() {
+    };
+    Auth.prototype.save = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.request('put', '/auth', {}, {
+                            username: this.username,
+                            displayName: this.displayName,
+                            avatarUrl: this.avatarUrl,
+                            lang: this.lang,
+                            location: this.location,
+                            timezone: this.timezone,
+                        })];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/, this];
+                }
+            });
+        });
+    };
+    Auth.prototype.getFriends = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.request('get', '/friends/all')];
+                    case 1: return [2 /*return*/, (_a.sent())];
+                }
+            });
+        });
+    };
+    Auth.prototype.getOnlineFriends = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.request('get', '/friends/online')];
+                    case 1: return [2 /*return*/, (_a.sent())];
+                }
+            });
+        });
+    };
+    Auth.prototype.getFriendRequests = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.request('get', '/friends/requests')];
+                    case 1: return [2 /*return*/, (_a.sent())];
+                }
+            });
+        });
+    };
+    Auth.prototype.sendFriendRequest = function (friendId) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.request('post', '/friends/requests', { userId: friendId })];
+                    case 1: return [2 /*return*/, (_a.sent())];
+                }
+            });
+        });
+    };
+    Auth.prototype.acceptFriendRequest = function (friendId) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.request('put', '/friends/requests', { userId: friendId })];
+                    case 1: return [2 /*return*/, (_a.sent())];
+                }
+            });
+        });
+    };
+    Auth.prototype.declineFriendRequest = function (friendId) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.request('del', '/friends/requests', { userId: friendId })];
+                    case 1: return [2 /*return*/, (_a.sent())];
+                }
+            });
+        });
+    };
+    Auth.prototype.blockUser = function (friendId) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.request('post', '/friends/block', { userId: friendId })];
+                    case 1: return [2 /*return*/, (_a.sent())];
+                }
+            });
+        });
+    };
+    Auth.prototype.unblockUser = function (friendId) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.request('put', '/friends/block', { userId: friendId })];
+                    case 1: return [2 /*return*/, (_a.sent())];
+                }
+            });
+        });
+    };
+    Auth.prototype.request = function (method, segments, query, body, headers) {
+        if (query === void 0) { query = {}; }
+        if (headers === void 0) { headers = {}; }
+        return __awaiter(this, void 0, void 0, function () {
+            var queryParams, name_1, queryString, opts;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        headers['Accept'] = 'application/json';
+                        if (this.hasToken) {
+                            headers['Authorization'] = 'Bearer ' + this.token;
+                        }
+                        queryParams = [];
+                        for (name_1 in query) {
+                            queryParams.push("".concat(name_1, "=").concat(query[name_1]));
+                        }
+                        queryString = (queryParams.length > 0)
+                            ? "?".concat(queryParams.join("&"))
+                            : '';
+                        opts = { headers: headers };
+                        if (body) {
+                            opts.body = body;
+                        }
+                        return [4 /*yield*/, http[method]("".concat(this.endpoint).concat(segments).concat(queryString), opts)];
+                    case 1: return [2 /*return*/, (_a.sent()).data];
+                }
+            });
+        });
+    };
+    Auth.prototype.logout = function () {
         this.token = undefined;
         removeItem(TOKEN_STORAGE);
         this.unregisterPingService();
-    }
-    registerPingService(timeout = 15000) {
+    };
+    Auth.prototype.registerPingService = function (timeout) {
+        var _this = this;
+        if (timeout === void 0) { timeout = 15000; }
         this.unregisterPingService();
-        this.keepOnlineInterval = setInterval(() => this.request('get', '/auth'), timeout);
-    }
-    unregisterPingService() {
+        this.keepOnlineInterval = setInterval(function () { return _this.request('get', '/auth'); }, timeout);
+    };
+    Auth.prototype.unregisterPingService = function () {
         clearInterval(this.keepOnlineInterval);
-    }
-}
+    };
+    return Auth;
+}());
 
-class SchemaSerializer {
-    state;
-    setState(rawState) {
-        return this.state.decode(rawState);
+var _a;
+var MatchMakeError = /** @class */ (function (_super) {
+    __extends(MatchMakeError, _super);
+    function MatchMakeError(message, code) {
+        var _this = _super.call(this, message) || this;
+        _this.code = code;
+        Object.setPrototypeOf(_this, MatchMakeError.prototype);
+        return _this;
     }
-    getState() {
+    return MatchMakeError;
+}(Error));
+// - React Native does not provide `window.location`
+// - Cocos Creator (Native) does not provide `window.location.hostname`
+var DEFAULT_ENDPOINT = (typeof (window) !== "undefined" && typeof ((_a = window === null || window === void 0 ? void 0 : window.location) === null || _a === void 0 ? void 0 : _a.hostname) !== "undefined")
+    ? "".concat(window.location.protocol.replace("http", "ws"), "//").concat(window.location.hostname).concat((window.location.port && ":".concat(window.location.port)))
+    : "ws://127.0.0.1:2567";
+var Client = /** @class */ (function () {
+    function Client(endpoint) {
+        if (endpoint === void 0) { endpoint = DEFAULT_ENDPOINT; }
+        this.endpoint = endpoint;
+    }
+    Object.defineProperty(Client.prototype, "auth", {
+        get: function () {
+            if (!this._auth) {
+                this._auth = new Auth(this.endpoint);
+            }
+            return this._auth;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Client.prototype.joinOrCreate = function (roomName, options, rootSchema) {
+        if (options === void 0) { options = {}; }
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.createMatchMakeRequest('joinOrCreate', roomName, options, rootSchema)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    Client.prototype.create = function (roomName, options, rootSchema) {
+        if (options === void 0) { options = {}; }
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.createMatchMakeRequest('create', roomName, options, rootSchema)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    Client.prototype.join = function (roomName, options, rootSchema) {
+        if (options === void 0) { options = {}; }
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.createMatchMakeRequest('join', roomName, options, rootSchema)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    Client.prototype.joinById = function (roomId, options, rootSchema) {
+        if (options === void 0) { options = {}; }
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.createMatchMakeRequest('joinById', roomId, options, rootSchema)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    Client.prototype.reconnect = function (roomId, sessionId, rootSchema) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.createMatchMakeRequest('joinById', roomId, { sessionId: sessionId }, rootSchema)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    Client.prototype.getAvailableRooms = function (roomName) {
+        if (roomName === void 0) { roomName = ""; }
+        return __awaiter(this, void 0, void 0, function () {
+            var url;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        url = "".concat(this.endpoint.replace("ws", "http"), "/matchmake/").concat(roomName);
+                        return [4 /*yield*/, get_1(url, { headers: { 'Accept': 'application/json' } })];
+                    case 1: return [2 /*return*/, (_a.sent()).data];
+                }
+            });
+        });
+    };
+    Client.prototype.consumeSeatReservation = function (response, rootSchema) {
+        return __awaiter(this, void 0, void 0, function () {
+            var room;
+            return __generator(this, function (_a) {
+                room = this.createRoom(response.room.name, rootSchema);
+                room.roomId = response.room.roomId;
+                room.sessionId = response.sessionId;
+                room.connect(this.buildEndpoint(response.room, { sessionId: room.sessionId }));
+                return [2 /*return*/, new Promise(function (resolve, reject) {
+                        var onError = function (code, message) { return reject(new ServerError(code, message)); };
+                        room.onError.once(onError);
+                        room['onJoin'].once(function () {
+                            room.onError.remove(onError);
+                            resolve(room);
+                        });
+                    })];
+            });
+        });
+    };
+    Client.prototype.createMatchMakeRequest = function (method, roomName, options, rootSchema) {
+        if (options === void 0) { options = {}; }
+        return __awaiter(this, void 0, void 0, function () {
+            var url, response;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        url = "".concat(this.endpoint.replace("ws", "http"), "/matchmake/").concat(method, "/").concat(roomName);
+                        // automatically forward auth token, if present
+                        if (this._auth && this._auth.hasToken) {
+                            options.token = this._auth.token;
+                        }
+                        return [4 /*yield*/, post_1(url, {
+                                headers: {
+                                    'Accept': 'application/json',
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(options)
+                            })];
+                    case 1:
+                        response = (_a.sent()).data;
+                        if (response.error) {
+                            throw new MatchMakeError(response.error, response.code);
+                        }
+                        return [2 /*return*/, this.consumeSeatReservation(response, rootSchema)];
+                }
+            });
+        });
+    };
+    Client.prototype.createRoom = function (roomName, rootSchema) {
+        return new Room(roomName, rootSchema);
+    };
+    Client.prototype.buildEndpoint = function (room, options) {
+        if (options === void 0) { options = {}; }
+        var params = [];
+        for (var name_1 in options) {
+            if (!options.hasOwnProperty(name_1)) {
+                continue;
+            }
+            params.push("".concat(name_1, "=").concat(options[name_1]));
+        }
+        return "".concat(this.endpoint, "/").concat(room.processId, "/").concat(room.roomId, "?").concat(params.join('&'));
+    };
+    return Client;
+}());
+
+var SchemaSerializer = /** @class */ (function () {
+    function SchemaSerializer() {
+    }
+    SchemaSerializer.prototype.setState = function (rawState) {
+        this.state.decode(rawState);
+    };
+    SchemaSerializer.prototype.getState = function () {
         return this.state;
-    }
-    patch(patches) {
-        return this.state.decode(patches);
-    }
-    teardown() {
-        this.state?.['$changes']?.root.clearRefs();
-    }
-    handshake(bytes, it) {
+    };
+    SchemaSerializer.prototype.patch = function (patches) {
+        this.state.decode(patches);
+    };
+    SchemaSerializer.prototype.teardown = function () {
+        var _a, _b;
+        (_b = (_a = this.state) === null || _a === void 0 ? void 0 : _a['$changes']) === null || _b === void 0 ? void 0 : _b.root.clearRefs();
+    };
+    SchemaSerializer.prototype.handshake = function (bytes, it) {
         if (this.state) {
-            // TODO: validate client/server definitinos
-            const reflection = new __node_modules__colyseus_schema_build_umd.Reflection();
+            // validate client/server definitinos
+            var reflection = new umd.Reflection();
             reflection.decode(bytes, it);
         }
         else {
             // initialize reflected state from server
-            this.state = __node_modules__colyseus_schema_build_umd.Reflection.decode(bytes, it);
+            this.state = umd.Reflection.decode(bytes, it);
         }
-    }
-}
+    };
+    return SchemaSerializer;
+}());
 
-class NoneSerializer {
-    setState(rawState) { }
-    getState() { return null; }
-    patch(patches) { }
-    teardown() { }
-    handshake(bytes) { }
-}
+var NoneSerializer = /** @class */ (function () {
+    function NoneSerializer() {
+    }
+    NoneSerializer.prototype.setState = function (rawState) { };
+    NoneSerializer.prototype.getState = function () { return null; };
+    NoneSerializer.prototype.patch = function (patches) { };
+    NoneSerializer.prototype.teardown = function () { };
+    NoneSerializer.prototype.handshake = function (bytes) { };
+    return NoneSerializer;
+}());
 
 registerSerializer('schema', SchemaSerializer);
 registerSerializer('none', NoneSerializer);
