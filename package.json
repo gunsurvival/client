@@ -17,7 +17,6 @@
 		"@pixi/layers": "^2.0.1",
 		"@reduxjs/toolkit": "^1.9.3",
 		"autoprefixer": "^10.4.13",
-		"colyseus.js": "^0.14.13",
 		"detect-collisions": "^6.6.11",
 		"nipplejs": "^0.10.1",
 		"pixi-filters": "^5.2.0",

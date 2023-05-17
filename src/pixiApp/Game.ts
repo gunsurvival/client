@@ -98,8 +98,13 @@ export default class Game {
 			this.entities.set(entityCore.id, entityClient);
 			this.viewport.addChild(entityClient.displayObject);
 			entityClient.onAdd(entityCore);
-			const entityServer = this.room.state.entities.get(entityCore.id)!;
-			entityClient.hookStateChange(entityServer);
+			const entityServer = this.room.state.entities.get(entityCore.id);
+			if (entityServer) {
+				entityClient.hookStateChange(entityServer);
+			} else {
+				debugger;
+			}
+
 			if (entityCore.id === this.room.sessionId) {
 				this.playAs(entityCore);
 			}
@@ -144,10 +149,10 @@ export default class Game {
 				this.camera.update();
 
 				// Update player angle to mouse
-				const entity = this.entities.get(this.player.entity.id);
+				const {entity} = this.player;
 				if (entity && !this.isMobile) {
-					const playerX = entity.displayObject.position.x;
-					const playerY = entity.displayObject.position.y;
+					const playerX = entity.body.pos.x;
+					const playerY = entity.body.pos.y;
 					const playerScreenPos = this.viewport.toScreen(playerX, playerY);
 					this.player.entity.body.angle = Math.atan2(
 						this.pointerPos.y - playerScreenPos.y,
@@ -201,7 +206,7 @@ export default class Game {
 			};
 			this.worldCore.events.push(ev);
 			this.worldCore.event.emit('+events', ev).catch(console.error);
-			this.worldCore.event.emit(ev.type as keyof WorldEventMap, ev.args as any).catch(console.error);
+			this.worldCore.event.emit(ev.type as keyof WorldEventMap, ...ev.args as any).catch(console.error);
 		});
 	}
 

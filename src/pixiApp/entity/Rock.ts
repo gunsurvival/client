@@ -29,19 +29,16 @@ export default class Rock extends Entity {
 		};
 	}
 
-	hookStateChange(entityServer: EntityServer.default): void {
+	hookStateChange(entityServer: EntityServer.Rock): void {
 		super.hookStateChange(entityServer);
 
-		(entityServer as EntityServer.Rock).stats.onChange = (changes: DataChange[]) => {
-			changes.forEach((change: DataChange) => {
-				switch (change.field) {
-					case 'radius':
-						this.entityCore._stats.radius = change.value as number;
-						break;
-					default:
-						break;
-				}
-			});
+		const normalMutate = (obj: any, field: string) => (value: any, previousValue: any) => {
+			if (field in this.entityCore.body) {
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+				obj[field] = value;
+			}
 		};
+
+		entityServer.stats.listen('radius', normalMutate(this.entityCore._stats, 'radius'));
 	}
 }

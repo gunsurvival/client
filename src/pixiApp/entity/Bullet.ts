@@ -28,11 +28,12 @@ export default class Bullet extends Entity {
 			lerp(this.displayObject.x, this.entityCore.body.x, alpha),
 			lerp(this.displayObject.y, this.entityCore.body.y, alpha),
 		);
+		console.log(this.entityCore.body.pos);
 		this.displayObject.rotation = lerpAngle(this.displayObject.rotation, this.entityCore.body.angle, 0.5);
 	}
 
 	// Call when entityServer is created
-	hookStateChange(entityServer: EntityServer.default): void {
+	hookStateChange(entityServer: EntityServer.Bullet): void {
 		super.hookStateChange(entityServer);
 
 		// (entityServer as EntityServer.Bullet).vel.onChange = (changes: DataChange[]) => {
@@ -54,16 +55,13 @@ export default class Bullet extends Entity {
 		// 	});
 		// };
 
-		(entityServer as EntityServer.Bullet).stats.onChange = (changes: DataChange[]) => {
-			changes.forEach((change: DataChange) => {
-				switch (change.field) {
-					case 'radius':
-						this.entityCore._stats.radius = change.value as number;
-						break;
-					default:
-						break;
-				}
-			});
+		const normalMutate = (obj: any, field: string) => (value: any, previousValue: any) => {
+			if (field in this.entityCore.body) {
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+				obj[field] = value;
+			}
 		};
+
+		entityServer.stats.listen('radius', normalMutate(this.entityCore._stats, 'radius'));
 	}
 }

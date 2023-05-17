@@ -58,7 +58,6 @@ export default class World {
 
 	useWorld(world: WorldCore.default) {
 		this.worldCore = world;
-		this.worldCore.lockApi = true;
 		this.worldCore.event.on('+entities', (entityCore: EntityCore.default) => {
 			const EntityClass = (Entity as Record<string, unknown>)[entityCore.constructor.name] as new (entC: EntityCore.default) => Entity.default;
 			const entityClient = new EntityClass(entityCore);

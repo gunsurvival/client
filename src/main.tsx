@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 		await game.connect();
 		game.init();
 		const root = document.getElementById('root')!;
-		root.appendChild(game.world.app.view as HTMLCanvasElement);
+		root.appendChild(game.app.view as HTMLCanvasElement);
 	} catch (err) {
 		console.error(err);
 	}

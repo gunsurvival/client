@@ -34,29 +34,23 @@ export default class Gunner extends Entity {
 		this.displayObject.rotation = lerpAngle(this.displayObject.rotation, this.entityCore.body.angle, 0.2);
 	}
 
-	hookStateChange(entityServer: EntityServer.default): void {
+	hookStateChange(entityServer: EntityServer.Gunner): void {
 		super.hookStateChange(entityServer);
 
-		(entityServer as EntityServer.Gunner).stats.onChange = (changes: DataChange[]) => {
-			changes.forEach((change: DataChange) => {
-				switch (change.field) {
-					case 'health':
-						this.entityCore._stats.health = change.value as number;
-						if (this.isUser) {
-							store.dispatch(setHealth(change.value as number));
-						}
-
-						break;
-					case 'radius':
-						this.entityCore._stats.radius = change.value as number;
-						break;
-					case 'speed':
-						this.entityCore._stats.speed = change.value as number;
-						break;
-					default:
-						break;
-				}
-			});
+		const normalMutate = (obj: any, field: string) => (value: any, previousValue: any) => {
+			if (field in this.entityCore.body) {
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+				obj[field] = value;
+			}
 		};
+
+		entityServer.stats.listen('health', (value, previousValue) => {
+			this.entityCore._stats.health = value;
+			if (this.isUser) {
+				store.dispatch(setHealth(value));
+			}
+		});
+		entityServer.stats.listen('radius', normalMutate(this.entityCore._stats, 'radius'));
+		entityServer.stats.listen('speed', normalMutate(this.entityCore._stats, 'speed'));
 	}
 }
