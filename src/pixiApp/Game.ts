@@ -90,6 +90,7 @@ export default class Game {
 	useWorld(world: WorldCore.default) {
 		this.worldCore = world;
 		this.worldCore.lockApi = true; // Lock the api to prevent any modification from client, only server can modify the world
+		this.worldCore.isOnline = true; // Set the world to online mode, prevent any modification from client, only server can modify the world
 
 		this.worldCore.event.on('+entities', (entityCore: EntityCore.default) => {
 			const EntityClass = (Entity as Record<string, unknown>)[entityCore.constructor.name] as new (entC: EntityCore.default) => Entity.default;

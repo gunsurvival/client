@@ -1,5 +1,7 @@
 export const zIndex = [
 	'Bullet',
+	'Wolf',
+	'Spider',
 	'Gunner',
 	'Bush',
 	'Rock',
