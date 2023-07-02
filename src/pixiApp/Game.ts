@@ -10,7 +10,6 @@ import {lerp, lerpAngle, World as WorldCore, type Entity as EntityCore, Player} 
 import * as Entity from './entity/index.js';
 import * as Colyseus from '../lib/colyseus.js';
 import {Camera} from './utils/Camera.js';
-import * as World from './world/index.js';
 import {ENDPOINT} from '../constant.js';
 import {store} from '../app/store.js';
 import * as ItemBarAction from '../slices/ItemBarSlice.js';
@@ -102,7 +101,7 @@ export default class Game {
 			if (entityServer) {
 				entityClient.hookStateChange(entityServer);
 			} else {
-				debugger;
+				// Previous object that have been removed from the server but still exist on worldCore.events to re-add
 			}
 
 			if (entityCore.id === this.room.sessionId) {
