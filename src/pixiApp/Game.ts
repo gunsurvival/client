@@ -136,6 +136,8 @@ export default class Game {
 				delta: 1,
 			};
 
+			this.worldCore.nextTick(tickData);
+
 			if (this.player.isReady) {
 				this.player.update(this.worldCore, tickData);
 			}
