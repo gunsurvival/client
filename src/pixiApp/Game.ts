@@ -6,7 +6,7 @@ import Stats from 'stats.js';
 import * as PIXI from 'pixi.js';
 import nipplejs, {type JoystickManager} from 'nipplejs';
 import type * as WorldServer from '@gunsurvival/server/world';
-import {lerp, lerpAngle, World as WorldCore, type Entity as EntityCore, Player} from '@gunsurvival/core';
+import {lerp, lerpAngle, World as WorldCore, Entity as EntityCore, Player} from '@gunsurvival/core';
 import * as Entity from './entity/index.js';
 import * as Colyseus from '../lib/colyseus.js';
 import {Camera} from './utils/Camera.js';
@@ -102,7 +102,7 @@ export default class Game {
 			if (entityServer) {
 				entityClient.hookStateChange(entityServer);
 			} else {
-				// Previous object that have been removed from the server but still exist on worldCore.events to re-add
+				// Previous object that have been removed from the server but still exists on worldCore.events(api:entities add) to be re-add
 			}
 
 			if (entityCore.id === this.room.sessionId) {
@@ -316,12 +316,16 @@ export default class Game {
 
 		// Setup player after main entity spawned
 		this.player.event.on('ready', () => {
-			this.player.entity.event.on('collision-enter', () => {
-				this.filters.lightMap.enabled = true;
+			this.player.entity.event.on('collision-enter', (entity: EntityCore.default) => {
+				if (entity instanceof EntityCore.Bush) {
+					this.filters.lightMap.enabled = true;
+				}
 			});
 
-			this.player.entity.event.on('collision-exit', () => {
-				this.filters.lightMap.enabled = false;
+			this.player.entity.event.on('collision-exit', (entity: EntityCore.default) => {
+				if (entity instanceof EntityCore.Bush) {
+					this.filters.lightMap.enabled = false;
+				}
 			});
 
 			// Inventory
