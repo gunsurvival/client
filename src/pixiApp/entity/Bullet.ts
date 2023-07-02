@@ -28,7 +28,6 @@ export default class Bullet extends Entity {
 			lerp(this.displayObject.x, this.entityCore.body.x, alpha),
 			lerp(this.displayObject.y, this.entityCore.body.y, alpha),
 		);
-		console.log(this.entityCore.body.pos);
 		this.displayObject.rotation = lerpAngle(this.displayObject.rotation, this.entityCore.body.angle, 0.5);
 	}
 
