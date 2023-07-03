@@ -11,7 +11,8 @@
 			"rules": {
 				"@typescript-eslint/naming-convention": "off",
 				"no-empty-function": "off",
-				"@typescript-eslint/no-empty-function": "off"
+				"@typescript-eslint/no-empty-function": "off",
+				"no-mixed-operators": "off"
 			}
 		}
 	],
@@ -19,5 +20,6 @@
 		"ecmaVersion": "latest",
 		"sourceType": "module"
 	},
-	"plugins": ["react"]
+	"plugins": ["react"],
+	"ignorePatterns": ["/*", "!/src", "/src/lib"]
 }
