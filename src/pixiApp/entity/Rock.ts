@@ -1,44 +1,32 @@
 import * as PIXI from 'pixi.js';
-import type * as WorldCore from '@gunsurvival/core/world';
 import type {ITickData} from '@gunsurvival/core/types';
 import type * as EntityCore from '@gunsurvival/core/entity';
 import type * as EntityServer from '@gunsurvival/server/entity';
-import {type DataChange} from '../../lib/colyseus.js';
+import type Game from '../Game.js';
 import Entity from './Entity.js';
-import getOrdering from '../ordering.js';
 
 export default class Rock extends Entity {
-	declare entityCore: EntityCore.Rock;
+	entityCore: EntityCore.Rock;
+	entityServer: EntityServer.Rock;
 	displayObject = PIXI.Sprite.from('images/Rock.png');
 
-	onAdd() {
+	initCore(entityCore: EntityCore.default): void {
+		super.initCore(entityCore);
 		this.displayObject.width = 200;
 		this.displayObject.height = 200;
 		this.displayObject.anchor.set(0.5);
-		this.displayObject.zIndex = getOrdering('Rock');
 	}
 
-	update(world: WorldCore.default, tickData: ITickData) {
-		this.displayObject.x = this.entityCore.body.pos.x;
-		this.displayObject.y = this.entityCore.body.pos.y;
+	initServer(entityServer: EntityServer.Rock): void {
+		super.initServer(entityServer);
 
+		// EntityServer.stats.listen('radius', this.normalMutate(this.entityCore._stats, 'radius'));
+	}
+
+	update(game: Game, tickData: ITickData) {
 		const scale = this.entityCore._stats.health / 100;
-		this.displayObject.scale = {
-			x: scale,
-			y: scale,
-		};
-	}
-
-	hookStateChange(entityServer: EntityServer.Rock): void {
-		super.hookStateChange(entityServer);
-
-		const normalMutate = (obj: any, field: string) => (value: any, previousValue: any) => {
-			if (field in this.entityCore.body) {
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-				obj[field] = value;
-			}
-		};
-
-		entityServer.stats.listen('radius', normalMutate(this.entityCore._stats, 'radius'));
+		this.displayObject.scale.x = scale;
+		this.displayObject.scale.y = scale;
+		this.smoothTransition();
 	}
 }

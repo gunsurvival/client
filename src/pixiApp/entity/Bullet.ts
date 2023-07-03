@@ -1,66 +1,27 @@
 import * as PIXI from 'pixi.js';
 import type {ITickData} from '@gunsurvival/core/types';
-import type * as WorldCore from '@gunsurvival/core/world';
 import type * as EntityCore from '@gunsurvival/core/entity';
 import type * as EntityServer from '@gunsurvival/server/entity';
+import type Game from '../Game.js';
 import Entity from './Entity.js';
-import {type DataChange} from '../../lib/colyseus.js';
-import {lerp, lerpAngle} from '@gunsurvival/core';
-import getOrdering from '../ordering.js';
 
 export default class Bullet extends Entity {
-	declare entityCore: EntityCore.Bullet;
+	entityCore: EntityCore.Bullet;
+	entityServer: EntityServer.Bullet;
 	displayObject = PIXI.Sprite.from('images/bullet2.png');
 
-	onAdd() {
-		this.displayObject.width = this.entityCore.stats.radius;
-		this.displayObject.height = this.entityCore.stats.radius;
+	initCore(entityCore: EntityCore.Bullet): void {
+		super.initCore(entityCore);
+		this.displayObject.width = entityCore.stats.radius;
+		this.displayObject.height = entityCore.stats.radius;
 		this.displayObject.anchor.set(0.5);
-		this.displayObject.rotation = this.entityCore.body.angle;
-		this.displayObject.x = this.entityCore.body.pos.x;
-		this.displayObject.y = this.entityCore.body.pos.y;
-		this.displayObject.zIndex = getOrdering('Bullet');
 	}
 
-	update(world: WorldCore.default, tickData: ITickData) {
-		const alpha = 0.5;
-		this.displayObject.position.set(
-			lerp(this.displayObject.x, this.entityCore.body.x, alpha),
-			lerp(this.displayObject.y, this.entityCore.body.y, alpha),
-		);
-		this.displayObject.rotation = lerpAngle(this.displayObject.rotation, this.entityCore.body.angle, 0.5);
+	initServer(entityServer: EntityServer.Bullet): void {
+		super.initServer(entityServer);
 	}
 
-	// Call when entityServer is created
-	hookStateChange(entityServer: EntityServer.Bullet): void {
-		super.hookStateChange(entityServer);
-
-		// (entityServer as EntityServer.Bullet).vel.onChange = (changes: DataChange[]) => {
-		// 	changes.forEach((change: DataChange) => {
-		// 		if (this.isPlayer) {
-		// 			return;
-		// 		}
-
-		// 		switch (change.field) {
-		// 			case 'x':
-		// 				this.entityCore.vel.x = change.value as number;
-		// 				break;
-		// 			case 'y':
-		// 				this.entityCore.vel.y = change.value as number;
-		// 				break;
-		// 			default:
-		// 				break;
-		// 		}
-		// 	});
-		// };
-
-		const normalMutate = (obj: any, field: string) => (value: any, previousValue: any) => {
-			if (field in this.entityCore.body) {
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-				obj[field] = value;
-			}
-		};
-
-		entityServer.stats.listen('radius', normalMutate(this.entityCore._stats, 'radius'));
+	update(game: Game, tickData: ITickData): void {
+		this.smoothTransition(0.5, 0.5);
 	}
 }
