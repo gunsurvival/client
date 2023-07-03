@@ -22,9 +22,16 @@ export class Camera {
 	}
 
 	update() {
-		this.pos.x = ((-this.followingPos.x * this.game.viewport.scale._x) + (window.innerWidth / 2));
-		this.pos.y = ((-this.followingPos.y * this.game.viewport.scale._y) + (window.innerHeight / 2));
-		this.game.viewport.position.set(lerp(this.game.viewport.position.x, this.pos.x, 0.03), lerp(this.game.viewport.position.y, this.pos.y, 0.03));
+		this.pos.x
+			= -this.followingPos.x * this.game.viewport.scale._x
+			+ window.innerWidth / 2;
+		this.pos.y
+			= -this.followingPos.y * this.game.viewport.scale._y
+			+ window.innerHeight / 2;
+		this.game.viewport.position.set(
+			lerp(this.game.viewport.position.x, this.pos.x, 0.03),
+			lerp(this.game.viewport.position.y, this.pos.y, 0.03),
+		);
 	}
 
 	shake(amount: number) {

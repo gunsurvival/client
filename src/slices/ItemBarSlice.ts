@@ -24,7 +24,12 @@ export const itemBarSlice = createSlice({
 		updateAll(state: IItemBarState, action: {payload: IItem[]}) {
 			state.items = [...action.payload];
 		},
-		add(state: IItemBarState, action: {payload: {item: IItem; opts: {index: number; isStack: boolean}}}) {
+		add(
+			state: IItemBarState,
+			action: {
+				payload: {item: IItem; opts: {index: number; isStack: boolean}};
+			},
+		) {
 			const {item, opts} = action.payload;
 			if (opts.isStack) {
 				state.items[opts.index].amount += item.amount;

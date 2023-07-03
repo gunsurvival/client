@@ -11,12 +11,17 @@ function Slot({index, item}: {index: number; item: IItem}) {
 	const notChoosingStyle = 'bg-green-800 w-14 h-14';
 
 	const clickHandler = async () => {
-		await to(game.player.inventory.choose(index));
+		await to(game.player.entity.inventory.choose(index));
 		dispatch(choose([index]));
 	};
 
 	return (
-		<div onClick={clickHandler} className={`cursor-pointer flex items-center justify-center border-solid z-50 mr-3 rounded-xl ${choosing.includes(index) ? choosingStyle : notChoosingStyle}`}>
+		<div
+			onClick={clickHandler}
+			className={`cursor-pointer flex items-center justify-center border-solid z-50 mr-3 rounded-xl ${
+				choosing.includes(index) ? choosingStyle : notChoosingStyle
+			}`}
+		>
 			<img src={`images/${item.id}.png`} className='w-4/5'></img>
 		</div>
 	);
@@ -28,9 +33,9 @@ export default function ItemBar() {
 	return (
 		<div className='fixed bottom-5 left-0 z-20'>
 			<div className='flex bottom-2 left-0 w-screen h-16 justify-center'>
-				{
-					items.map((item, index) => (<Slot item={item} index={index} key={index}/>))
-				}
+				{items.map((item, index) => (
+					<Slot item={item} index={index} key={index} />
+				))}
 			</div>
 		</div>
 	);

@@ -14,7 +14,10 @@ export default function HealthBar() {
 			</div>
 			<div className='relative z-9'>
 				<div className='w-48 h-7 border-red-600 rounded-lg border-solid border-4 z-8'></div>
-				<div className={`w-48 h-7 bg-red-600 rounded-lg absolute top-0 left-0 z-7 transition-all ${effectCss}`} style={{width: `${192 * percent}px`}}></div>
+				<div
+					className={`w-48 h-7 bg-red-600 rounded-lg absolute top-0 left-0 z-7 transition-all ${effectCss}`}
+					style={{width: `${192 * percent}px`}}
+				></div>
 			</div>
 		</div>
 	);

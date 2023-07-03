@@ -1,4 +1,3 @@
-
 import './index.css';
 import React from 'react';
 import {createRoot} from 'react-dom/client';
@@ -24,6 +23,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 root.render(
 	<Provider store={store}>
-		<App/>
+		<App />
 	</Provider>,
 );

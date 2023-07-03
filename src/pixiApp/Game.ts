@@ -6,14 +6,23 @@ import Stats from 'stats.js';
 import * as PIXI from 'pixi.js';
 import nipplejs, {type JoystickManager} from 'nipplejs';
 import type * as WorldServer from '@gunsurvival/server/world';
-import {lerp, lerpAngle, World as WorldCore, Entity as EntityCore, Player} from '@gunsurvival/core';
+import {
+	lerp,
+	lerpAngle,
+	World as WorldCore,
+	Entity as EntityCore,
+	Player,
+} from '@gunsurvival/core';
 import * as Entity from './entity/index.js';
 import * as Colyseus from '../lib/colyseus.js';
 import {Camera} from './utils/Camera.js';
 import {ENDPOINT} from '../constant.js';
 import {store} from '../app/store.js';
 import * as ItemBarAction from '../slices/ItemBarSlice.js';
-import {type IEvent, type WorldEventMap} from '@gunsurvival/core/world/World.js';
+import {
+	type IEvent,
+	type WorldEventMap,
+} from '@gunsurvival/core/world/World.js';
 
 export default class Game {
 	room: Colyseus.Room<WorldServer.Casual>;
@@ -21,7 +30,7 @@ export default class Game {
 	pointerPos = new SATVector(0, 0);
 	client = new Colyseus.Client(ENDPOINT);
 	camera = new Camera(this);
-	player = new Player.Casual(true);
+	player = new Player.Casual();
 	app = new PIXI.Application({
 		width: window.innerWidth,
 		height: window.innerHeight,
@@ -36,10 +45,15 @@ export default class Game {
 	});
 
 	filters = {
-		lightMap: new PIXIFilter.SimpleLightmapFilter(PIXI.Texture.from('images/lightmap.png')),
+		lightMap: new PIXIFilter.SimpleLightmapFilter(
+			PIXI.Texture.from('images/lightmap.png'),
+		),
 		zoomBlur: new PIXIFilter.ZoomBlurFilter({
 			strength: 0,
-			center: new PIXI.Point(this.app.screen.width / 2, this.app.screen.height / 2),
+			center: new PIXI.Point(
+				this.app.screen.width / 2,
+				this.app.screen.height / 2,
+			),
 			innerRadius: 200,
 		}),
 	};
@@ -84,7 +98,9 @@ export default class Game {
 	}
 
 	get isMobile() {
-		return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+		return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+			navigator.userAgent,
+		);
 	}
 
 	useWorld(world: WorldCore.default) {
@@ -93,14 +109,16 @@ export default class Game {
 		this.worldCore.isOnline = true; // Set the world to online mode, prevent any modification from client, only server can modify the world
 
 		this.worldCore.event.on('+entities', (entityCore: EntityCore.default) => {
-			const EntityClass = (Entity as Record<string, unknown>)[entityCore.constructor.name] as new (entC: EntityCore.default) => Entity.default;
+			const EntityClass = (Entity as Record<string, unknown>)[
+				entityCore.constructor.name
+			] as new (entC: EntityCore.default) => Entity.default;
 			const entityClient = new EntityClass(entityCore);
 			this.entities.set(entityCore.id, entityClient);
 			this.viewport.addChild(entityClient.displayObject);
-			entityClient.onAdd(entityCore);
+			entityClient.initCore(entityCore);
 			const entityServer = this.room.state.entities.get(entityCore.id);
 			if (entityServer) {
-				entityClient.hookStateChange(entityServer);
+				entityClient.initServer(entityServer);
 			} else {
 				// Previous object that have been removed from the server but still exists on worldCore.events(api:entities add) to be re-add
 			}
@@ -115,7 +133,7 @@ export default class Game {
 			if (entity) {
 				this.viewport.removeChild(entity.displayObject);
 				this.entities.delete(entityCore.id);
-				entity.onRemove(entityCore);
+				// Entity.onRemove(entityCore);
 			}
 		});
 	}
@@ -179,7 +197,7 @@ export default class Game {
 		setInterval(() => {
 			const angle = Math.round(entityCore.body.angle * 100) / 100;
 			if (oldAngle !== angle) {
-				this.room.send('angle',	entityCore.body.angle);
+				this.room.send('angle', entityCore.body.angle);
 				oldAngle = angle;
 			}
 		}, 1000 / 20);
@@ -208,11 +226,16 @@ export default class Game {
 			};
 			this.worldCore.events.push(ev);
 			this.worldCore.event.emit('+events', ev).catch(console.error);
-			this.worldCore.event.emit(ev.type as keyof WorldEventMap, ...ev.args as any).catch(console.error);
+			this.worldCore.event
+				.emit(ev.type as keyof WorldEventMap, ...(ev.args as any))
+				.catch(console.error);
 		});
 	}
 
-	moveDirection(direction: 'up' | 'left' | 'right' | 'down' | 'stop', isKeydown = true) {
+	moveDirection(
+		direction: 'up' | 'left' | 'right' | 'down' | 'stop',
+		isKeydown = true,
+	) {
 		switch (direction) {
 			case 'up':
 				this.player.state.keyboard.w = isKeydown;
@@ -311,29 +334,56 @@ export default class Game {
 	setupPlayerEvent() {
 		this.player.event.on('shoot', () => {
 			this.camera.shake(10);
-			zzfx(1.01, 0.05, 115, 0.01, 0.03, 0.08, 2, 1.85, -8.4, 0, 0, 0, 0, 0, 0, 0, 0, 0.54, 0.03, 0.46);
+			zzfx(
+				1.01,
+				0.05,
+				115,
+				0.01,
+				0.03,
+				0.08,
+				2,
+				1.85,
+				-8.4,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0,
+				0.54,
+				0.03,
+				0.46,
+			);
 		});
 
 		// Setup player after main entity spawned
 		this.player.event.on('ready', () => {
-			this.player.entity.event.on('collision-enter', (entity: EntityCore.default) => {
-				if (entity instanceof EntityCore.Bush) {
-					this.filters.lightMap.enabled = true;
-				}
-			});
+			this.player.entity.event.on(
+				'collision-enter',
+				(entity: EntityCore.default) => {
+					if (entity instanceof EntityCore.Bush) {
+						this.filters.lightMap.enabled = true;
+					}
+				},
+			);
 
-			this.player.entity.event.on('collision-exit', (entity: EntityCore.default) => {
-				if (entity instanceof EntityCore.Bush) {
-					this.filters.lightMap.enabled = false;
-				}
-			});
+			this.player.entity.event.on(
+				'collision-exit',
+				(entity: EntityCore.default) => {
+					if (entity instanceof EntityCore.Bush) {
+						this.filters.lightMap.enabled = false;
+					}
+				},
+			);
 
 			// Inventory
 			this.player.entity.inventory.event.on('choose', indexes => {
 				store.dispatch(ItemBarAction.choose(indexes));
 				this.room.send('inventory-choose', indexes);
 				if (indexes.length === 1) {
-				// This.weapon.change(this.player.inventory.current[0]);
+					// This.weapon.change(this.player.inventory.current[0]);
 				}
 			});
 
@@ -341,10 +391,14 @@ export default class Game {
 				store.dispatch(ItemBarAction.add({item, opts}));
 			});
 
-			store.dispatch(ItemBarAction.updateAll(this.player.entity.inventory.items.map(item => ({
-				id: item.id,
-				amount: item.amount,
-			}))));
+			store.dispatch(
+				ItemBarAction.updateAll(
+					this.player.entity.inventory.items.map(item => ({
+						id: item.id,
+						amount: item.amount,
+					})),
+				),
+			);
 		});
 	}
 
@@ -458,7 +512,8 @@ export default class Game {
 
 		window.addEventListener('wheel', event => {
 			const current = store.getState().itemBarSlice;
-			if (current.choosing.length === 1) { // Check if only one item is choosing
+			if (current.choosing.length === 1) {
+				// Check if only one item is choosing
 				let choosing = current.choosing[0] + Math.sign(event.deltaY);
 				if (choosing < 0) {
 					choosing = current.items.length - 1;
@@ -526,7 +581,9 @@ export default class Game {
 				return;
 			}
 
-			this.shootDirection(lerpAngle(this.player?.entity.body.angle, -data.angle.radian, 1));
+			this.shootDirection(
+				lerpAngle(this.player?.entity.body.angle, -data.angle.radian, 1),
+			);
 		});
 	}
 }

@@ -1,4 +1,8 @@
-import type {World as WorldCore, Entity as EntityCore, ITickData} from '@gunsurvival/core';
+import type {
+	World as WorldCore,
+	Entity as EntityCore,
+	ITickData,
+} from '@gunsurvival/core';
 import * as PIXI from 'pixi.js';
 import Gun from './Gun.js';
 
