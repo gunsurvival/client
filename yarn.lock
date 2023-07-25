@@ -3141,6 +3141,10 @@ pixi-filters@^5.2.0:
     "@pixi/filter-twist" "5.1.1"
     "@pixi/filter-zoom-blur" "5.1.1"
 
+"pixi-shadows@https://github.com/gunsurvival/pixi-shadows":
+  version "1.1.0"
+  resolved "https://github.com/gunsurvival/pixi-shadows#def0b859c2161d1da5ee049628e11342932fefaa"
+
 pixi-viewport@^4.38.0:
   version "4.38.0"
   resolved "https://registry.yarnpkg.com/pixi-viewport/-/pixi-viewport-4.38.0.tgz#7deeec65a75046315638999d0379ff54ec26bdc3"
