@@ -161,7 +161,7 @@ export default class Game {
 			}
 
 			this.entities.forEach((entity: Entity.default) => {
-				entity.update(this.worldCore, tickData);
+				entity.update(this, tickData);
 			});
 			internal.elapsedMs += internal.targetDelta;
 			if (this.player.entity) {
