@@ -1,4 +1,5 @@
-import {Viewport} from 'pixi-viewport';
+import {Viewport} from 'pixi-viewport/dist/pixi_viewport.js';
+import {EventSystem} from '@pixi/events';
 import * as PIXIFilter from 'pixi-filters';
 import {zzfx} from 'zzfx';
 import SAT from 'sat';
@@ -39,10 +40,7 @@ export default class Game {
 		resizeTo: window,
 	});
 
-	viewport = new Viewport({
-		screenWidth: this.app.screen.width,
-		screenHeight: this.app.screen.height,
-	});
+	viewport: Viewport;
 
 	filters = {
 		lightMap: new PIXIFilter.SimpleLightmapFilter(
@@ -85,6 +83,16 @@ export default class Game {
 	};
 
 	constructor(public targetTps = 60) {
+		// https://github.com/davidfig/pixi-viewport/issues/441#issuecomment-1628206981
+		const events = new EventSystem(this.app.renderer);
+		// @ts-expect-error events.domElement is not defined in @pixi/viewport
+		events.domElement = this.app.renderer.view;
+		this.viewport = new Viewport({
+			screenWidth: this.app.screen.width,
+			screenHeight: this.app.screen.height,
+			events,
+		});
+
 		// Const magicNumber = (0.1 * 128 / tps); // Based on 128 tps, best run on 1-1000tps
 		this.internal.targetDelta = 1000 / targetTps;
 		this.viewport.sortableChildren = true;
@@ -113,9 +121,9 @@ export default class Game {
 				entityCore.constructor.name
 			] as new (entC: EntityCore.default) => Entity.default;
 			const entityClient = new EntityClass(entityCore);
+			entityClient.initCore(entityCore);
 			this.entities.set(entityCore.id, entityClient);
 			this.viewport.addChild(entityClient.displayObject);
-			entityClient.initCore(entityCore);
 			const entityServer = this.room.state.entities.get(entityCore.id);
 			if (entityServer) {
 				entityClient.initServer(entityServer);
