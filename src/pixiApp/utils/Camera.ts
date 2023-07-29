@@ -1,11 +1,11 @@
 import {lerp} from '@gunsurvival/core';
-import {SATVector} from 'detect-collisions';
+import SAT from 'sat';
 import type Game from '../Game.js';
 
 export class Camera {
-	pos = new SATVector(0, 0);
+	pos = new SAT.Vector(0, 0);
 	angle = 0;
-	followingPos = new SATVector(0, 0);
+	followingPos = new SAT.Vector(0, 0);
 
 	constructor(public game: Game) {}
 
@@ -17,7 +17,7 @@ export class Camera {
 		return this.pos.y;
 	}
 
-	follow(pos: SATVector) {
+	follow(pos: SAT.Vector) {
 		this.followingPos = pos;
 	}
 

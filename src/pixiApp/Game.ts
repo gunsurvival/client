@@ -1,7 +1,7 @@
 import {Viewport} from 'pixi-viewport';
 import * as PIXIFilter from 'pixi-filters';
 import {zzfx} from 'zzfx';
-import {SATVector} from 'detect-collisions';
+import SAT from 'sat';
 import Stats from 'stats.js';
 import * as PIXI from 'pixi.js';
 import nipplejs, {type JoystickManager} from 'nipplejs';
@@ -27,7 +27,7 @@ import {
 export default class Game {
 	room: Colyseus.Room<WorldServer.Casual>;
 	elapsedMs = 0;
-	pointerPos = new SATVector(0, 0);
+	pointerPos = new SAT.Vector(0, 0);
 	client = new Colyseus.Client(ENDPOINT);
 	camera = new Camera(this);
 	player = new Player.Casual();
