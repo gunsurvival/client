@@ -3,15 +3,17 @@ import {useDispatch, useSelector} from 'react-redux';
 import {to} from '@gunsurvival/core/util';
 import {type RootState} from '../app/store.js';
 import {type IItem, choose} from '../slices/ItemBarSlice.js';
+import {GameContext} from '../App.js';
 
 function Slot({index, item}: {index: number; item: IItem}) {
+	const {game} = React.useContext(GameContext);
 	const dispatch = useDispatch();
 	const {choosing} = useSelector((state: RootState) => state.itemBarSlice);
 	const choosingStyle = 'bg-green-900 -translate-y-[10px] w-16 w-16';
 	const notChoosingStyle = 'bg-green-800 w-14 h-14';
 
 	const clickHandler = async () => {
-		await to(game.player.entity.inventory.choose(index));
+		await to(game.player.playerCore.entity.inventory.choose(index));
 		dispatch(choose([index]));
 	};
 
