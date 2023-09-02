@@ -24,9 +24,8 @@ export default class Rock extends Entity {
 	}
 
 	update(game: Game, tickData: ITickData) {
-		const scale = this.entityCore._stats.health / 100;
-		this.displayObject.scale.x = scale;
-		this.displayObject.scale.y = scale;
+		this.displayObject.scale.x = this.entityCore.body.scaleX;
+		this.displayObject.scale.y = this.entityCore.body.scaleY;
 		this.smoothTransition();
 	}
 }
