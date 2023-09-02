@@ -12,7 +12,7 @@ import {
 	lerpAngle,
 	World as WorldCore,
 	Entity as EntityCore,
-	Player,
+	Player as PlayerCore,
 } from '@gunsurvival/core';
 import * as Entity from './entity/index.js';
 import * as Colyseus from '../lib/colyseus.js';
@@ -24,6 +24,7 @@ import {
 	type IEvent,
 	type WorldEventMap,
 } from '@gunsurvival/core/world/World.js';
+import * as Player from './player/index.js';
 
 export default class Game {
 	room: Colyseus.Room<WorldServer.Casual>;
@@ -199,7 +200,7 @@ export default class Game {
 			entity.isUser = true;
 		}
 
-		this.player.playAs(entityCore);
+		this.player.playerCore.playAs(entityCore);
 		this.camera.follow(entityCore.body.pos);
 		let oldAngle = 0;
 		setInterval(() => {
@@ -246,26 +247,26 @@ export default class Game {
 	) {
 		switch (direction) {
 			case 'up':
-				this.player.state.keyboard.w = isKeydown;
+				this.player.playerCore.state.keyboard.w = isKeydown;
 				this.room.send(isKeydown ? 'keyDown' : 'keyUp', 'w');
 				break;
 			case 'left':
-				this.player.state.keyboard.a = isKeydown;
+				this.player.playerCore.state.keyboard.a = isKeydown;
 				this.room.send(isKeydown ? 'keyDown' : 'keyUp', 'a');
 				break;
 			case 'down':
-				this.player.state.keyboard.s = isKeydown;
+				this.player.playerCore.state.keyboard.s = isKeydown;
 				this.room.send(isKeydown ? 'keyDown' : 'keyUp', 's');
 				break;
 			case 'right':
-				this.player.state.keyboard.d = isKeydown;
+				this.player.playerCore.state.keyboard.d = isKeydown;
 				this.room.send(isKeydown ? 'keyDown' : 'keyUp', 'd');
 				break;
 			case 'stop':
-				this.player.state.keyboard.w = false;
-				this.player.state.keyboard.a = false;
-				this.player.state.keyboard.s = false;
-				this.player.state.keyboard.d = false;
+				this.player.playerCore.state.keyboard.w = false;
+				this.player.playerCore.state.keyboard.a = false;
+				this.player.playerCore.state.keyboard.s = false;
+				this.player.playerCore.state.keyboard.d = false;
 				this.room.send('keyUp', 'w');
 				this.room.send('keyUp', 'a');
 				this.room.send('keyUp', 's');
@@ -277,18 +278,18 @@ export default class Game {
 	}
 
 	shootDirection(angle: number, stop = false) {
-		if (!this.player.entity) {
+		if (!this.player.isReady) {
 			return;
 		}
 
 		if (stop) {
-			this.player.state.mouse.left = false;
+			this.player.playerCore.state.mouse.left = false;
 			this.room.send('mouseUp', 'left');
 			return;
 		}
 
-		this.player.entity.body.angle = angle;
-		this.player.state.mouse.left = true;
+		this.player.playerCore.entity.body.angle = angle;
+		this.player.playerCore.state.mouse.left = true;
 		this.room.send('mouseDown', 'left');
 	}
 
@@ -340,7 +341,7 @@ export default class Game {
 	}
 
 	setupPlayerEvent() {
-		this.player.event.on('shoot', () => {
+		this.player.playerCore.event.on('shoot', () => {
 			this.camera.shake(10);
 			zzfx(
 				1.01,
@@ -367,8 +368,8 @@ export default class Game {
 		});
 
 		// Setup player after main entity spawned
-		this.player.event.on('ready', () => {
-			this.player.entity.event.on(
+		this.player.playerCore.event.on('ready', () => {
+			this.player.playerCore.entity.event.on(
 				'collision-enter',
 				(entity: EntityCore.default) => {
 					if (entity instanceof EntityCore.Bush) {
@@ -377,7 +378,7 @@ export default class Game {
 				},
 			);
 
-			this.player.entity.event.on(
+			this.player.playerCore.entity.event.on(
 				'collision-exit',
 				(entity: EntityCore.default) => {
 					if (entity instanceof EntityCore.Bush) {
@@ -387,7 +388,7 @@ export default class Game {
 			);
 
 			// Inventory
-			this.player.entity.inventory.event.on('choose', indexes => {
+			this.player.playerCore.entity.inventory.event.on('choose', indexes => {
 				store.dispatch(ItemBarAction.choose(indexes));
 				this.room.send('inventory-choose', indexes);
 				if (indexes.length === 1) {
@@ -395,13 +396,13 @@ export default class Game {
 				}
 			});
 
-			this.player.entity.inventory.event.on('add', (item, opts) => {
+			this.player.playerCore.entity.inventory.event.on('add', (item, opts) => {
 				store.dispatch(ItemBarAction.add({item, opts}));
 			});
 
 			store.dispatch(
 				ItemBarAction.updateAll(
-					this.player.entity.inventory.items.map(item => ({
+					this.player.playerCore.entity.inventory.items.map(item => ({
 						id: item.id,
 						amount: item.amount,
 					})),
@@ -415,32 +416,32 @@ export default class Game {
 			if (this.isOnline) {
 				switch (key.code) {
 					case 'KeyW':
-						this.player.state.keyboard.w = true;
+						this.player.playerCore.state.keyboard.w = true;
 						this.room.send('keyDown', 'w');
 						break;
 					case 'KeyA':
-						this.player.state.keyboard.a = true;
+						this.player.playerCore.state.keyboard.a = true;
 						this.room.send('keyDown', 'a');
 						break;
 					case 'KeyS':
-						this.player.state.keyboard.s = true;
+						this.player.playerCore.state.keyboard.s = true;
 						this.room.send('keyDown', 's');
 						break;
 					case 'KeyD':
-						this.player.state.keyboard.d = true;
+						this.player.playerCore.state.keyboard.d = true;
 						this.room.send('keyDown', 'd');
 						break;
 					case 'Digit1':
-						this.player?.entity.inventory.choose(0).catch(console.error);
+						this.player.playerCore?.entity.inventory.choose(0).catch(console.error);
 						break;
 					case 'Digit2':
-						this.player?.entity.inventory.choose(1).catch(console.error);
+						this.player.playerCore?.entity.inventory.choose(1).catch(console.error);
 						break;
 					case 'Digit3':
-						this.player?.entity.inventory.choose(2).catch(console.error);
+						this.player.playerCore?.entity.inventory.choose(2).catch(console.error);
 						break;
 					case 'Digit4':
-						this.player?.entity.inventory.choose(3).catch(console.error);
+						this.player.playerCore?.entity.inventory.choose(3).catch(console.error);
 						break;
 					default:
 						break;
@@ -452,19 +453,19 @@ export default class Game {
 			if (this.isOnline) {
 				switch (key.code) {
 					case 'KeyW':
-						this.player.state.keyboard.w = false;
+						this.player.playerCore.state.keyboard.w = false;
 						this.room.send('keyUp', 'w');
 						break;
 					case 'KeyA':
-						this.player.state.keyboard.a = false;
+						this.player.playerCore.state.keyboard.a = false;
 						this.room.send('keyUp', 'a');
 						break;
 					case 'KeyS':
-						this.player.state.keyboard.s = false;
+						this.player.playerCore.state.keyboard.s = false;
 						this.room.send('keyUp', 's');
 						break;
 					case 'KeyD':
-						this.player.state.keyboard.d = false;
+						this.player.playerCore.state.keyboard.d = false;
 						this.room.send('keyUp', 'd');
 						break;
 					default:
@@ -477,13 +478,13 @@ export default class Game {
 			if (this.isOnline) {
 				switch (mouse.button) {
 					case 0:
-						this.player.state.mouse.left = true;
+						this.player.playerCore.state.mouse.left = true;
 						break;
 					case 1:
-						this.player.state.mouse.middle = true;
+						this.player.playerCore.state.mouse.middle = true;
 						break;
 					case 2:
-						this.player.state.mouse.right = true;
+						this.player.playerCore.state.mouse.right = true;
 						break;
 					default:
 						break;
@@ -497,15 +498,15 @@ export default class Game {
 			if (this.isOnline) {
 				switch (mouse.button) {
 					case 0:
-						this.player.state.mouse.left = false;
+						this.player.playerCore.state.mouse.left = false;
 						this.room.send('mouseUp', 'left');
 						break;
 					case 1:
-						this.player.state.mouse.middle = false;
+						this.player.playerCore.state.mouse.middle = false;
 						this.room.send('mouseUp', 'middle');
 						break;
 					case 2:
-						this.player.state.mouse.right = false;
+						this.player.playerCore.state.mouse.right = false;
 						this.room.send('mouseUp', 'right');
 						break;
 					default:
@@ -531,7 +532,7 @@ export default class Game {
 					choosing = 0;
 				}
 
-				this.player.entity.inventory.choose(choosing).catch(console.error);
+				this.player.playerCore.entity.inventory.choose(choosing).catch(console.error);
 			}
 		});
 	}
@@ -590,7 +591,7 @@ export default class Game {
 			}
 
 			this.shootDirection(
-				lerpAngle(this.player?.entity.body.angle, -data.angle.radian, 1),
+				lerpAngle(this.player.playerCore?.entity.body.angle, -data.angle.radian, 1),
 			);
 		});
 	}
