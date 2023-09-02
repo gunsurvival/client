@@ -98,8 +98,10 @@ export default class Game {
 		this.internal.targetDelta = 1000 / targetTps;
 		this.viewport.sortableChildren = true;
 		this.filters.lightMap.enabled = false;
-		this.viewport.filters = [this.filters.lightMap, this.filters.zoomBlur];
+		this.viewport.filters = [this.filters.lightMap];
 		this.app.stage.addChild(this.viewport);
+		// This.player.visibility.alpha = 0.2;
+		// This.viewport.addChild(this.player.visibility);
 	}
 
 	get isOnline() {
@@ -125,6 +127,7 @@ export default class Game {
 			entityClient.initCore(entityCore);
 			this.entities.set(entityCore.id, entityClient);
 			this.viewport.addChild(entityClient.displayObject);
+
 			const entityServer = this.room.state.entities.get(entityCore.id);
 			if (entityServer) {
 				entityClient.initServer(entityServer);
@@ -150,6 +153,7 @@ export default class Game {
 	nextTick() {
 		const {deltaMS} = this.app.ticker;
 		const {internal} = this;
+		// This.viewport.mask = this.player.visibility;
 
 		internal.accumulator += deltaMS;
 		this.stats.fps.begin();
