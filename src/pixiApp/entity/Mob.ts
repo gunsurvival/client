@@ -16,10 +16,9 @@ export default abstract class Mob extends Entity {
 
 	update(game: Game, tickData: ITickData) {
 		const bubbleScale
-			= Math.sin((tickData.elapsedMs + this.randomSeed) / 300) * 0.05;
-		const scale = this.entityCore._stats.health / 100 + bubbleScale;
-		this.displayObject.scale.x = scale;
-		this.displayObject.scale.y = scale;
+			= 1 + Math.sin((tickData.elapsedMs + this.randomSeed) / 300) * 0.05;
+		this.displayObject.scale.x = bubbleScale * this.entityCore.body.scaleX;
+		this.displayObject.scale.y = bubbleScale * this.entityCore.body.scaleY;
 		this.smoothTransition(0.5, 0.1);
 	}
 }
