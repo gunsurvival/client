@@ -166,29 +166,26 @@ export default class Game {
 			this.worldCore.nextTick(tickData);
 
 			if (this.player.isReady) {
-				this.player.update(this.worldCore, tickData);
+				this.player.update(this, tickData);
+				// Update camera
+				this.camera.update();
+				// Update player angle to mouse
+				const {entity} = this.player.playerCore;
+				if (!this.isMobile) {
+					const playerX = entity.body.pos.x;
+					const playerY = entity.body.pos.y;
+					const playerScreenPos = this.viewport.toScreen(playerX, playerY);
+					entity.body.angle = Math.atan2(
+						this.pointerPos.y - playerScreenPos.y,
+						this.pointerPos.x - playerScreenPos.x,
+					);
+				}
 			}
 
 			this.entities.forEach((entity: Entity.default) => {
 				entity.update(this, tickData);
 			});
 			internal.elapsedMs += internal.targetDelta;
-			if (this.player.entity) {
-				// Update camera
-				this.camera.update();
-
-				// Update player angle to mouse
-				const {entity} = this.player;
-				if (entity && !this.isMobile) {
-					const playerX = entity.body.pos.x;
-					const playerY = entity.body.pos.y;
-					const playerScreenPos = this.viewport.toScreen(playerX, playerY);
-					this.player.entity.body.angle = Math.atan2(
-						this.pointerPos.y - playerScreenPos.y,
-						this.pointerPos.x - playerScreenPos.x,
-					);
-				}
-			}
 		}
 
 		this.stats.fps.end();
